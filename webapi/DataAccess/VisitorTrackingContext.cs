@@ -25,6 +25,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess
                 .HasKey(c => new { c.CompanyId, c.Id });
             modelBuilder.Entity<Registry>()
                 .HasKey(c => new { c.DeviceId, c.CompanyId, c.CustomerId });
+            modelBuilder.Entity<RolePerUser>()
+                .HasKey(c => new { c.RoleId, c.UserId });
         }
         
         public DbSet<Company> CompanyRepository { get; set; }
@@ -33,6 +35,10 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess
         public DbSet<Employee> EmployeeRepository { get; set; }
         public DbSet<Registry> RegistryRepository { get; set; }
         public DbSet<Activity> ActivityRepository { get; set; }
+        public DbSet<User> UserRepository { get; set; }
+        public DbSet<Role> RoleRepository { get; set; }
+        public DbSet<RolePerUser> RolePerUserRepository { get; set; }
+        public DbSet<Parameter> ParameterRepository { get; set; }
 
 
         public void NotificarModificacion<TEntity>(TEntity entidad) where TEntity : class

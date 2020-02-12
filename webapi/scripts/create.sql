@@ -73,6 +73,7 @@ CREATE TABLE user (
   Id INT(11) NOT NULL AUTO_INCREMENT,
   Username VARCHAR(10) NOT NULL,
   Password VARCHAR(100) NOT NULL,
+  Identifier VARCHAR(20) NULL,
   PRIMARY KEY (Id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -90,8 +91,22 @@ CREATE TABLE roleperuser (
   FOREIGN KEY (IdRole) REFERENCES role(Id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-INSERT INTO user values (1, 'JASLOP', '/SOHlDytfCDqqGitmLZJgw==');
+CREATE TABLE parameter (
+  Id int(11) NOT NULL,
+  Value VARCHAR(100) NOT NULL,
+  PRIMARY KEY (Id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO parameter VALUES (1, 'UNfxAQwIEWg8kil6t2woauT7LoJPyJ66ARYibyW9');
+INSERT INTO user values (1, 'ADMIN', '/SOHlDytfCDqqGitmLZJgw==');
+INSERT INTO user values (2, 'MOBILEAPP', '/SOHlDytfCDqqGitmLZJgw==');
 INSERT INTO role VALUES (1, 'ADMIN');
 INSERT INTO role VALUES (2, 'Actualiza datos de la empresa');
-INSERT INTO role VALUES (3, 'Acceso al menu de reportes');
+INSERT INTO role VALUES (3, 'Mantenimiento de empleados');
+INSERT INTO role VALUES (4, 'Mantenimiento de clientes');
+INSERT INTO role VALUES (5, 'Menu de reportes');
+INSERT INTO role VALUES (6, 'Registro de clientes');
+INSERT INTO role VALUES (7, 'Registro de visitas');
 INSERT INTO roleperuser VALUES (1,1);
+INSERT INTO roleperuser VALUES (2,6);
+INSERT INTO roleperuser VALUES (2,7);

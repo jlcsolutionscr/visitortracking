@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using jlcsolutionscr.com.visitortracking.webapi.customclasses;
 using jlcsolutionscr.com.visitortracking.webapi.dataaccess.domain;
 using jlcsolutionscr.com.visitortracking.webapi.services;
@@ -13,7 +11,7 @@ using jlcsolutionscr.com.visitortracking.webapi.services;
 namespace jlcsolutionscr.com.visitortracking.webapi.controllers
 {
     [ApiController]
-    [Route("/visitortracking/")]
+    [Route("/webservice/")]
     public class VisitorTrackingController : ControllerBase
     {
         private readonly ILogger<VisitorTrackingController> _logger;
@@ -36,9 +34,28 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
             _settings = settings;
         }
 
+        [HttpGet("userlogin")]
+        public User UserLogin(string username, string password, string identifier)
+        {
+            using (var service = new VisitorTrackingService(_settings))
+            {
+                try
+                {
+                    User user = service.UserLogin(username, password, identifier);
+                    return user;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    throw ex;
+                }
+            }
+        }
+
         [HttpPost("messagewithresponse")]
         public string MessageWithResponse([FromBody] string text)
         {
+            string apiKey = Request.Headers["x-api-key"];
             MessageData message;
             string response = "";
             try
@@ -56,12 +73,21 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
             {
                 try
                 {
+                    service.ValidateAccessCode(apiKey);
                     switch (message.MethodName)
                     {
                         case "GetCompanyList":
                             IList<Company> companyList = service.GetCompanyList();
                             if (companyList.Count > 0)
-                                response = JsonSerializer.Serialize(companyList, new JsonSerializerOptions());
+                            {
+                                IList<IdDescList> results = new List<IdDescList>();
+                                foreach(var company in companyList)
+                                {
+                                    IdDescList item = new IdDescList(company.Id, company.CompanyName);
+                                    results.Add(item);
+                                }
+                                response = JsonSerializer.Serialize(results, new JsonSerializerOptions());
+                            }
                             break;
                         case "GetCompany":
                             companyId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CompanyId").Value.ToString());
@@ -72,7 +98,15 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                             companyId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CompanyId").Value.ToString());
                             IList<Branch> branchList = service.GetBranchList(companyId);
                             if (branchList.Count > 0)
-                                response = JsonSerializer.Serialize(branchList, new JsonSerializerOptions());
+                            {
+                                IList<IdDescList> results = new List<IdDescList>();
+                                foreach(var branch in branchList)
+                                {
+                                    IdDescList item = new IdDescList(branch.Id, branch.Description);
+                                    results.Add(item);
+                                }
+                                response = JsonSerializer.Serialize(results, new JsonSerializerOptions());
+                            }
                             break;
                         case "GetBranch":
                             branchId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "BranchId").Value.ToString());
@@ -88,7 +122,15 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                             companyId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CompanyId").Value.ToString());
                             IList<Employee> employeeList = service.GetEmployeeList(companyId);
                             if (employeeList.Count > 0)
-                                response = JsonSerializer.Serialize(employeeList, new JsonSerializerOptions());
+                            {
+                                IList<IdDescList> results = new List<IdDescList>();
+                                foreach(var employee in employeeList)
+                                {
+                                    IdDescList item = new IdDescList(employee.Id, employee.Name);
+                                    results.Add(item);
+                                }
+                                response = JsonSerializer.Serialize(results, new JsonSerializerOptions());
+                            }
                             break;
                         case "GetEmployee":
                             employeeId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "EmployeeId").Value.ToString());
@@ -111,6 +153,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
         [HttpPost("messagenoresponse")]
         public void MessageNoResponse([FromBody] string text)
         {
+            string apiKey = Request.Headers["x-api-key"];
             MessageData message;
             string entity = "";
             try
@@ -128,6 +171,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
             {
                 try
                 {
+                    service.ValidateAccessCode(apiKey);
                     switch (message.MethodName)
                     {
                         case "AddCompany":

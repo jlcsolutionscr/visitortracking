@@ -19,6 +19,51 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             _settings = settings;
         }
 
+        public User UserLogin(string username, string password, string identifier)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    Company company = dbContext.CompanyRepository.FirstOrDefault(x => x.Identifier == identifier);
+                    if (company == null) throw new Exception("La identificación suministrada no pertenece a ninguna empresa registrada en el sistema. Por favor verifique la información suministrada.");
+                    if (company.ExpiresAt < DateTime.Today) throw new Exception("La vigencia del plan de facturación ha expirado. Por favor, pongase en contacto con su proveedor de servicio.");
+                    User user = null;
+                    if (username.ToUpper() == "ADMIN" || username.ToUpper() == "MOBILEAPP")
+                        user = dbContext.UserRepository.FirstOrDefault(x => x.Username == username.ToUpper());
+                    else
+                        user = dbContext.UserRepository.FirstOrDefault(x => x.Username == username.ToUpper() && x.Identifier == identifier);
+                    if (user == null) throw new Exception("Usuario no registrado en la empresa suministrada. Por favor verifique la información suministrada.");
+                    if (user.Password != password) throw new Exception("Los credenciales suministrados no son válidos. Verifique los credenciales suministrados.");
+                    Parameter param = dbContext.ParameterRepository.Find(1);
+                    if (param == null) throw new Exception("La parametrización del sistema está incompleta, por favor contacte con su proveedor del servicio.");
+                    user.Token = param.Value;
+                    return user;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
+        public void ValidateAccessCode(string apiKey)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    Parameter param = dbContext.ParameterRepository.Find(1);
+                    if (param == null) throw new Exception("La parametrización del sistema está incompleta, por favor contacte con su proveedor del servicio.");
+                    if (param.Value != apiKey) throw new Exception("La sesión ha expirado o es inválida. Por favor reingrese al sistema nuevamente.");
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
         public List<Company> GetCompanyList()
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
@@ -70,6 +115,75 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
         }
 
         public void UpdateCompany(Company entity)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    dbContext.NotificarModificacion(entity);
+                    dbContext.Commit();
+                }
+                catch (Exception ex)
+                {
+                    dbContext.RollBack();
+                    throw ex;
+                }
+            }
+        }
+
+        public List<User> GetUserList(string identifier)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    List<User> list = dbContext.UserRepository.Where(x => x.Identifier == identifier).ToList();
+                    return list;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
+        public User GetUser(int id)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    User entity = dbContext.UserRepository.FirstOrDefault(x => x.Id == id);
+                    return entity;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
+        public string AddUser(User entity)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    entity.Username = entity.Username.ToUpper();
+                    if (entity.Username == "ADMIN" || entity.Username == "MOBILEAPP") throw new Exception("El código de usuario ingresado no está disponible");
+                    dbContext.UserRepository.Add(entity);
+                    dbContext.Commit();
+                    return entity.Id.ToString();
+                }
+                catch (Exception ex)
+                {
+                    dbContext.RollBack();
+                    throw ex;
+                }
+            }
+        }
+
+        public void UpdateUser(User entity)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
@@ -154,13 +268,15 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public List<Customer> GetCustomerList()
+        public List<Customer> GetCustomerList(string deviceId)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
                 {
-                    List<Customer> list = dbContext.CustomerRepository.ToList();
+                    List<Customer> list = dbContext.CustomerRepository.Join(dbContext.RegistryRepository, x => x.Id, y => y.CustomerId, (x, y) => new { x, y })
+                        .Where(x => x.y.DeviceId == deviceId)
+                        .Select(x => x.x).ToList();
                     return list;
                 }
                 catch (Exception ex)
@@ -380,26 +496,6 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     dbContext.Commit();
                     string response = willApply ? company.PromotionMessage : "";
                     return response;
-                }
-                catch (Exception ex)
-                {
-                    dbContext.RollBack();
-                    throw ex;
-                }
-            }
-        }
-
-        public int getVisitorActivityResume(int companyId, int branchId, string startDate, string endDate)
-        {
-            DateTime datStartDate = DateTime.ParseExact(startDate + " 00:00:01", strFormat, provider);
-            DateTime datEndDate = DateTime.ParseExact(endDate + " 23:59:59", strFormat, provider);
-            int visitCount = 0;
-            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
-            {
-                try
-                {
-                    visitCount = dbContext.ActivityRepository.Where(x => x.CompanyId == companyId && x.BranchId == branchId && x.VisitDate >= datStartDate && x.VisitDate <= datEndDate).Count();
-                    return visitCount;
                 }
                 catch (Exception ex)
                 {
