@@ -39,6 +39,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess
         public DbSet<Role> RoleRepository { get; set; }
         public DbSet<RolePerUser> RolePerUserRepository { get; set; }
         public DbSet<Parameter> ParameterRepository { get; set; }
+        public DbSet<AuthorizationEntry> AuthorizationEntryRepository { get; set; }
 
 
         public void NotificarModificacion<TEntity>(TEntity entidad) where TEntity : class

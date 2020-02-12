@@ -55,7 +55,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
         [HttpPost("messagewithresponse")]
         public string MessageWithResponse([FromBody] string text)
         {
-            string apiKey = Request.Headers["x-api-key"];
+            string token = Request.Headers["Authorization"];
+            if (token == null) throw new Exception("La solicitud requiere del encabezado de autorización. Reinicie su sesión.");
+            token = token.Substring(7);
             MessageData message;
             string response = "";
             try
@@ -73,7 +75,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
             {
                 try
                 {
-                    service.ValidateAccessCode(apiKey);
+                    service.ValidateAccessCode(token);
                     switch (message.MethodName)
                     {
                         case "GetCompanyList":
@@ -153,7 +155,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
         [HttpPost("messagenoresponse")]
         public void MessageNoResponse([FromBody] string text)
         {
-            string apiKey = Request.Headers["x-api-key"];
+            string token = Request.Headers["Authorization"];
+            if (token == null) throw new Exception("La solicitud requiere del encabezado de autorización. Reinicie su sesión.");
+            token = token.Substring(7);
             MessageData message;
             string entity = "";
             try
@@ -171,7 +175,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
             {
                 try
                 {
-                    service.ValidateAccessCode(apiKey);
+                    service.ValidateAccessCode(token);
                     switch (message.MethodName)
                     {
                         case "AddCompany":

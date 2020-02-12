@@ -97,6 +97,12 @@ CREATE TABLE parameter (
   PRIMARY KEY (Id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE authorizationentry (
+ Id varchar(36) NOT NULL,
+ EmitedAt datetime NOT NULL,
+ PRIMARY KEY (Id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 INSERT INTO parameter VALUES (1, 'UNfxAQwIEWg8kil6t2woauT7LoJPyJ66ARYibyW9');
 INSERT INTO user values (1, 'ADMIN', '/SOHlDytfCDqqGitmLZJgw==');
 INSERT INTO user values (2, 'MOBILEAPP', '/SOHlDytfCDqqGitmLZJgw==');

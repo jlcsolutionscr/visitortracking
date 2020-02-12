@@ -19,6 +19,54 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             _settings = settings;
         }
 
+        private string GenerateAuthorization()
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                string strGuid = Guid.NewGuid().ToString();
+                try
+                {
+                    
+                    AuthorizationEntry entry = new AuthorizationEntry
+                    {
+                        Id = strGuid,
+                        EmitedAt = DateTime.UtcNow
+                    };
+                    dbContext.AuthorizationEntryRepository.Add(entry);
+                    dbContext.Commit();
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                string encryptedToken = Utilities.EncryptString(strGuid);
+                return encryptedToken;
+            }
+        }
+
+        public void ValidateAccessCode(string token)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    string deencryptedToken = Utilities.DecryptString(token);
+                    AuthorizationEntry entry = dbContext.AuthorizationEntryRepository.Where(x => x.Id == deencryptedToken).FirstOrDefault();
+                    if (entry == null) throw new Exception("La sessión del usuario no es válida. Debe reiniciar su sesión.");
+                    if (entry.EmitedAt < DateTime.UtcNow.AddHours(-12))
+                    {
+                        dbContext.NotificarEliminacion(entry);
+                        dbContext.Commit();
+                        throw new Exception("La sessión del usuario se encuentra expirada. Debe reiniciar su sesión.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
         public User UserLogin(string username, string password, string identifier)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
@@ -35,27 +83,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         user = dbContext.UserRepository.FirstOrDefault(x => x.Username == username.ToUpper() && x.Identifier == identifier);
                     if (user == null) throw new Exception("Usuario no registrado en la empresa suministrada. Por favor verifique la información suministrada.");
                     if (user.Password != password) throw new Exception("Los credenciales suministrados no son válidos. Verifique los credenciales suministrados.");
-                    Parameter param = dbContext.ParameterRepository.Find(1);
-                    if (param == null) throw new Exception("La parametrización del sistema está incompleta, por favor contacte con su proveedor del servicio.");
-                    user.Token = param.Value;
+                    string token = GenerateAuthorization();
+                    user.Token = token;
                     return user;
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
-            }
-        }
-
-        public void ValidateAccessCode(string apiKey)
-        {
-            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
-            {
-                try
-                {
-                    Parameter param = dbContext.ParameterRepository.Find(1);
-                    if (param == null) throw new Exception("La parametrización del sistema está incompleta, por favor contacte con su proveedor del servicio.");
-                    if (param.Value != apiKey) throw new Exception("La sesión ha expirado o es inválida. Por favor reingrese al sistema nuevamente.");
                 }
                 catch (Exception ex)
                 {
