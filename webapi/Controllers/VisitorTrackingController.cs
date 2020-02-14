@@ -63,7 +63,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
             try
             {
                 message = JsonSerializer.Deserialize<MessageData>(text);
-                if (message.MethodName == "" && message.Entity == "" && message.Parameters.Count == 0)
+                if (message.MethodName == "" && message.Entity == null && message.Parameters.Count == 0)
                     throw new Exception("El mensaje no contiene la información suficiente para ser procesado.");
             }
             catch (Exception ex)
@@ -159,11 +159,10 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
             if (token == null) throw new Exception("La solicitud requiere del encabezado de autorización. Reinicie su sesión.");
             token = token.Substring(7);
             MessageData message;
-            string entity = "";
             try
             {
                 message = JsonSerializer.Deserialize<MessageData>(text);
-                if (message.MethodName == "" && message.Entity == "" && message.Parameters.Count == 0)
+                if (message.MethodName == "" && message.Entity == null && message.Parameters.Count == 0)
                     throw new Exception("El mensaje no contiene la información suficiente para ser procesado.");
             }
             catch (Exception ex)
@@ -179,35 +178,35 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                     switch (message.MethodName)
                     {
                         case "AddCompany":
-                            company = JsonSerializer.Deserialize<Company>(message.Entity);
+                            company = JsonSerializer.Deserialize<Company>(message.Entity.ToString());
                             service.AddCompany(company);
                             break;
                         case "UpdateCompany":
-                            company = JsonSerializer.Deserialize<Company>(message.Entity);
+                            company = JsonSerializer.Deserialize<Company>(message.Entity.ToString());
                             service.UpdateCompany(company);
                             break;
                         case "AddBranch":
-                            branch = JsonSerializer.Deserialize<Branch>(message.Entity);
+                            branch = JsonSerializer.Deserialize<Branch>(message.Entity.ToString());
                             service.AddBranch(branch);
                             break;
                         case "UpdateBranch":
-                            branch = JsonSerializer.Deserialize<Branch>(message.Entity);
+                            branch = JsonSerializer.Deserialize<Branch>(message.Entity.ToString());
                             service.UpdateBranch(branch);
                             break;
                         case "AddCustomer":
-                            customer = JsonSerializer.Deserialize<Customer>(message.Entity);
+                            customer = JsonSerializer.Deserialize<Customer>(message.Entity.ToString());
                             service.AddCustomer(customer);
                             break;
                         case "UpdateCustomer":
-                            customer = JsonSerializer.Deserialize<Customer>(message.Entity);
+                            customer = JsonSerializer.Deserialize<Customer>(message.Entity.ToString());
                             service.UpdateCustomer(customer);
                             break;
                         case "AddEmployee":
-                            employee = JsonSerializer.Deserialize<Employee>(message.Entity);
+                            employee = JsonSerializer.Deserialize<Employee>(message.Entity.ToString());
                             service.AddEmployee(employee);
                             break;
                         case "UpdateEmployee":
-                            employee = JsonSerializer.Deserialize<Employee>(message.Entity);
+                            employee = JsonSerializer.Deserialize<Employee>(message.Entity.ToString());
                             service.UpdateEmployee(employee);
                             break;
                         case "CustomerRegistry":
