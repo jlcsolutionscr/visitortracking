@@ -12,9 +12,5 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess.domain
         public string Username { get; set; }
         public string Password { get; set; }
         public string Identifier { get; set; }
-        [NotMapped]
-        public string Token { get; set; }
-        [NotMapped]
-        public IEnumerable<RolePerUser> RolePerUser { get; set; }
     }
 }

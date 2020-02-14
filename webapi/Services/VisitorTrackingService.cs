@@ -67,27 +67,39 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public User UserLogin(string username, string password, string identifier)
+        public Session UserLogin(string username, string password, string identifier)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
                 {
-                    Company company = dbContext.CompanyRepository.FirstOrDefault(x => x.Identifier == identifier);
-                    if (company == null) throw new Exception("La identificación suministrada no pertenece a ninguna empresa registrada en el sistema. Por favor verifique la información suministrada.");
-                    if (company.ExpiresAt < DateTime.Today) throw new Exception("La vigencia del plan de facturación ha expirado. Por favor, pongase en contacto con su proveedor de servicio.");
                     User user = null;
+                    Company company = null;
                     if (username.ToUpper() == "ADMIN" || username.ToUpper() == "MOBILEAPP")
+                    {
                         user = dbContext.UserRepository.FirstOrDefault(x => x.Username == username.ToUpper());
+                    }
                     else
+                    {
+                        company = dbContext.CompanyRepository.FirstOrDefault(x => x.Identifier == identifier);
+                        if (company == null) throw new Exception("La identificación suministrada no pertenece a ninguna empresa registrada en el sistema. Por favor verifique la información suministrada.");
+                        if (company.ExpiresAt < DateTime.Today) throw new Exception("La vigencia del plan de facturación ha expirado. Por favor, pongase en contacto con su proveedor de servicio.");
                         user = dbContext.UserRepository.FirstOrDefault(x => x.Username == username.ToUpper() && x.Identifier == identifier);
+                    }
                     if (user == null) throw new Exception("Usuario no registrado en la empresa suministrada. Por favor verifique la información suministrada.");
                     if (user.Password != password) throw new Exception("Los credenciales suministrados no son válidos. Verifique los credenciales suministrados.");
                     List<RolePerUser> roles = dbContext.RolePerUserRepository.Where(x => x.UserId == user.Id).ToList();
-                    user.RolePerUser = roles;
+                    Session session = new Session();
+                    session.CompanyId = company == null ? -1 : company.Id;
+                    session.CompanyName = company == null ? "" : company.CompanyName;
+                    session.CompanyIdentifier = company == null ? "" : company.Identifier;
+                    roles.ForEach(item => {
+                        RoleItem role = new RoleItem(item.RoleId, item.UserId);
+                        session.RolePerUser.Add(role);
+                    });
                     string token = GenerateAuthorization();
-                    user.Token = token;
-                    return user;
+                    session.Token = token;
+                    return session;
                 }
                 catch (Exception ex)
                 {

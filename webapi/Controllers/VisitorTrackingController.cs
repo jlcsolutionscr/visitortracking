@@ -41,8 +41,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
             {
                 try
                 {
-                    User user = service.UserLogin(username, password, identifier);
-                    return JsonSerializer.Serialize(user, new JsonSerializerOptions());
+                    Session session = service.UserLogin(username, password, identifier);
+                    return JsonSerializer.Serialize(session, new JsonSerializerOptions());
                 }
                 catch (Exception ex)
                 {
