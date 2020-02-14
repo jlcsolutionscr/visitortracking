@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,5 +14,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess.domain
         public string Identifier { get; set; }
         [NotMapped]
         public string Token { get; set; }
+        [NotMapped]
+        public IEnumerable<RolePerUser> RolePerUser { get; set; }
     }
 }

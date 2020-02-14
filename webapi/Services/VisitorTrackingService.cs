@@ -83,6 +83,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         user = dbContext.UserRepository.FirstOrDefault(x => x.Username == username.ToUpper() && x.Identifier == identifier);
                     if (user == null) throw new Exception("Usuario no registrado en la empresa suministrada. Por favor verifique la información suministrada.");
                     if (user.Password != password) throw new Exception("Los credenciales suministrados no son válidos. Verifique los credenciales suministrados.");
+                    List<RolePerUser> roles = dbContext.RolePerUserRepository.Where(x => x.UserId == user.Id).ToList();
+                    user.RolePerUser = roles;
                     string token = GenerateAuthorization();
                     user.Token = token;
                     return user;

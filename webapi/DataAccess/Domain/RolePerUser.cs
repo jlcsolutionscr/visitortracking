@@ -6,6 +6,6 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess.domain
     public class RolePerUser
     {
         public int RoleId { get; set; }
-        public string UserId { get; set; }
+        public int UserId { get; set; }
     }
 }

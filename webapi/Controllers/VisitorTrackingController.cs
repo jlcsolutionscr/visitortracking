@@ -35,14 +35,14 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
         }
 
         [HttpGet("userlogin")]
-        public User UserLogin(string username, string password, string identifier)
+        public string UserLogin(string username, string password, string identifier)
         {
             using (var service = new VisitorTrackingService(_settings))
             {
                 try
                 {
                     User user = service.UserLogin(username, password, identifier);
-                    return user;
+                    return JsonSerializer.Serialize(user, new JsonSerializerOptions());
                 }
                 catch (Exception ex)
                 {

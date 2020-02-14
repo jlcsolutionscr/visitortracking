@@ -84,11 +84,11 @@ CREATE TABLE role (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE roleperuser (
-  IdUser INT(11) NOT NULL,
-  IdRole INT(11) NOT NULL,
-  PRIMARY KEY (IdUser, IdRole),
-  FOREIGN KEY (IdUser) REFERENCES user(Id),
-  FOREIGN KEY (IdRole) REFERENCES role(Id)
+  UserId INT(11) NOT NULL,
+  RoleId INT(11) NOT NULL,
+  PRIMARY KEY (UserId, RoleId),
+  FOREIGN KEY (UserId) REFERENCES user(Id),
+  FOREIGN KEY (RoleId) REFERENCES role(Id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE parameter (
