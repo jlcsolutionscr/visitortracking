@@ -179,43 +179,35 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                     switch (message.MethodName)
                     {
                         case "AddCompany":
-                            entity = message.Entity.Replace("'", "\"");
-                            company = JsonSerializer.Deserialize<Company>(entity);
+                            company = JsonSerializer.Deserialize<Company>(message.Entity);
                             service.AddCompany(company);
                             break;
                         case "UpdateCompany":
-                            entity = message.Entity.Replace("'", "\"");
-                            company = JsonSerializer.Deserialize<Company>(entity);
+                            company = JsonSerializer.Deserialize<Company>(message.Entity);
                             service.UpdateCompany(company);
                             break;
                         case "AddBranch":
-                            entity = message.Entity.Replace("'", "\"");
-                            branch = JsonSerializer.Deserialize<Branch>(entity);
+                            branch = JsonSerializer.Deserialize<Branch>(message.Entity);
                             service.AddBranch(branch);
                             break;
                         case "UpdateBranch":
-                            entity = message.Entity.Replace("'", "\"");
-                            branch = JsonSerializer.Deserialize<Branch>(entity);
+                            branch = JsonSerializer.Deserialize<Branch>(message.Entity);
                             service.UpdateBranch(branch);
                             break;
                         case "AddCustomer":
-                            entity = message.Entity.Replace("'", "\"");
-                            customer = JsonSerializer.Deserialize<Customer>(entity);
+                            customer = JsonSerializer.Deserialize<Customer>(message.Entity);
                             service.AddCustomer(customer);
                             break;
                         case "UpdateCustomer":
-                            entity = message.Entity.Replace("'", "\"");
-                            customer = JsonSerializer.Deserialize<Customer>(entity);
+                            customer = JsonSerializer.Deserialize<Customer>(message.Entity);
                             service.UpdateCustomer(customer);
                             break;
                         case "AddEmployee":
-                            entity = message.Entity.Replace("'", "\"");
-                            employee = JsonSerializer.Deserialize<Employee>(entity);
+                            employee = JsonSerializer.Deserialize<Employee>(message.Entity);
                             service.AddEmployee(employee);
                             break;
                         case "UpdateEmployee":
-                            entity = message.Entity.Replace("'", "\"");
-                            employee = JsonSerializer.Deserialize<Employee>(entity);
+                            employee = JsonSerializer.Deserialize<Employee>(message.Entity);
                             service.UpdateEmployee(employee);
                             break;
                         case "CustomerRegistry":
