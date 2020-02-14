@@ -27,7 +27,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi
                 options.AddPolicy(MyAllowSpecificOrigins,
                 builder =>
                 {
-                    builder.WithOrigins("*");
+                    builder.WithOrigins("*")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
                 });
             });
             var appSettings = new AppSettings();  
