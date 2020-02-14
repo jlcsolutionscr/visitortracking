@@ -147,7 +147,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message);
-                    throw ex;
+                    throw new ArgumentException(ex.Message);
                 }
             }
         }
@@ -256,7 +256,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message);
-                    throw ex;
+                    throw new ArgumentException(ex.Message);
                 }
             }
         }
