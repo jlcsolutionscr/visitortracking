@@ -83,17 +83,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                     switch (message.MethodName)
                     {
                         case "GetCompanyList":
-                            IList<Company> companyList = service.GetCompanyList();
+                            List<IdDescList> companyList = service.GetCompanyList();
                             if (companyList.Count > 0)
-                            {
-                                IList<IdDescList> results = new List<IdDescList>();
-                                foreach(var company in companyList)
-                                {
-                                    IdDescList item = new IdDescList(company.Id, company.CompanyName);
-                                    results.Add(item);
-                                }
-                                response = JsonSerializer.Serialize(results, new JsonSerializerOptions());
-                            }
+                                response = JsonSerializer.Serialize(companyList, new JsonSerializerOptions());
                             break;
                         case "GetCompany":
                             companyId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CompanyId").Value.ToString());
@@ -102,17 +94,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                             break;
                         case "GetBranchList":
                             companyId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CompanyId").Value.ToString());
-                            IList<Branch> branchList = service.GetBranchList(companyId);
+                            List<IdDescList> branchList = service.GetBranchList(companyId);
                             if (branchList.Count > 0)
-                            {
-                                IList<IdDescList> results = new List<IdDescList>();
-                                foreach(var branch in branchList)
-                                {
-                                    IdDescList item = new IdDescList(branch.Id, branch.Description);
-                                    results.Add(item);
-                                }
-                                response = JsonSerializer.Serialize(results, new JsonSerializerOptions());
-                            }
+                                response = JsonSerializer.Serialize(branchList, new JsonSerializerOptions());
                             break;
                         case "GetBranch":
                             companyId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CompanyId").Value.ToString());
@@ -122,17 +106,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                             break;
                         case "GetUserList":
                             companyIdentifier = message.Parameters.FirstOrDefault(x => x.Key == "CompanyIdentifier").Value.ToString();
-                            IList<User> userList = service.GetUserList(companyIdentifier);
+                            List<IdDescList> userList = service.GetUserList(companyIdentifier);
                             if (userList.Count > 0)
-                            {
-                                IList<IdDescList> results = new List<IdDescList>();
-                                foreach(var user in userList)
-                                {
-                                    IdDescList item = new IdDescList(user.Id, user.Username);
-                                    results.Add(item);
-                                }
-                                response = JsonSerializer.Serialize(results, new JsonSerializerOptions());
-                            }
+                                response = JsonSerializer.Serialize(userList, new JsonSerializerOptions());
                             break;
                         case "GetUser":
                             userId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "UserId").Value.ToString());
@@ -140,31 +116,15 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                             response = JsonSerializer.Serialize(user, new JsonSerializerOptions());
                             break;
                         case "GetRoleList":
-                            IList<Role> roleList = service.GetRoleList();
+                            List<IdDescList> roleList = service.GetRoleList();
                             if (roleList.Count > 0)
-                            {
-                                IList<IdDescList> results = new List<IdDescList>();
-                                foreach(var role in roleList)
-                                {
-                                    IdDescList item = new IdDescList(role.Id, role.Description);
-                                    results.Add(item);
-                                }
-                                response = JsonSerializer.Serialize(results, new JsonSerializerOptions());
-                            }
+                                response = JsonSerializer.Serialize(roleList, new JsonSerializerOptions());
                             break;
                         case "GetEmployeeList":
                             companyId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CompanyId").Value.ToString());
-                            IList<Employee> employeeList = service.GetEmployeeList(companyId);
+                            List<IdDescList> employeeList = service.GetEmployeeList(companyId);
                             if (employeeList.Count > 0)
-                            {
-                                IList<IdDescList> results = new List<IdDescList>();
-                                foreach(var employee in employeeList)
-                                {
-                                    IdDescList item = new IdDescList(employee.Id, employee.Name);
-                                    results.Add(item);
-                                }
-                                response = JsonSerializer.Serialize(results, new JsonSerializerOptions());
-                            }
+                                response = JsonSerializer.Serialize(employeeList, new JsonSerializerOptions());
                             break;
                         case "GetEmployee":
                             employeeId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "EmployeeId").Value.ToString());
@@ -173,32 +133,25 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                             break;
                         case "GetPendingRegistryList":
                             companyId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CompanyId").Value.ToString());
-                            IList<Registry> registryList = service.GetPendingRegistryList(companyId);
+                            List<RegistryData> registryList = service.GetPendingRegistryList(companyId);
                             if (registryList.Count > 0)
-                            {
-                                IList<RegistryData> results = new List<RegistryData>();
-                                foreach(var registry in registryList)
-                                {
-                                    Customer customer = service.GetCustomer(registry.CustomerId);
-                                    RegistryData item = new RegistryData(registry.Id, customer.Name, registry.RegisterDate);
-                                    results.Add(item);
-                                }
-                                response = JsonSerializer.Serialize(results, new JsonSerializerOptions());
-                            }
+                                response = JsonSerializer.Serialize(registryList, new JsonSerializerOptions());
                             break;
                         case "GetRegisteredCustomerList":
+                            deviceId = message.Parameters.FirstOrDefault(x => x.Key == "DeviceId").Value.ToString();
                             accessCode = message.Parameters.FirstOrDefault(x => x.Key == "AccessCode").Value.ToString();
-                            IList<Customer> customerList = service.GetRegisteredCustomerList(accessCode);
+                            List<IdDescList> customerList = service.GetRegisteredCustomerList(deviceId, accessCode);
                             if (customerList.Count > 0)
-                            {
-                                IList<IdDescList> results = new List<IdDescList>();
-                                foreach(var customer in customerList)
-                                {
-                                    IdDescList item = new IdDescList(customer.Id, customer.Name);
-                                    results.Add(item);
-                                }
-                                response = JsonSerializer.Serialize(results, new JsonSerializerOptions());
-                            }
+                                response = JsonSerializer.Serialize(customerList, new JsonSerializerOptions());
+                            break;
+                        case "GetVisitorActivityList":
+                            companyId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CompanyId").Value.ToString());
+                            branchId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "BranchId").Value.ToString());
+                            string startDate = message.Parameters.FirstOrDefault(x => x.Key == "StartDate").Value.ToString();
+                            string endDate = message.Parameters.FirstOrDefault(x => x.Key == "EndDate").Value.ToString();
+                            List<Activity> activityList = service.GetVisitorActivityList(companyId, branchId, startDate, endDate);
+                            if (activityList.Count > 0)
+                                response = JsonSerializer.Serialize(activityList, new JsonSerializerOptions());
                             break;
                         default:
                             throw new Exception("El método solicitado no ha sido implementado: " + message.MethodName);
