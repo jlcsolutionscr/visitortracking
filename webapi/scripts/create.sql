@@ -44,29 +44,29 @@ CREATE TABLE customer (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE registry (
+  Id INT(11) NOT NULL AUTO_INCREMENT,
   DeviceId VARCHAR(50) NOT NULL,
   CompanyId INT(11) NOT NULL,
   CustomerId INT(11) NOT NULL,
   RegisterDate DATETIME NOT NULL,
   VisitCount INT(11) NOT NULL,
   Status VARCHAR(1) NOT NULL,
-  PRIMARY KEY (DeviceId, CompanyId, CustomerId),
+  PRIMARY KEY (Id),
   FOREIGN KEY (CompanyId) REFERENCES company(Id),
   FOREIGN KEY (CustomerId) REFERENCES customer(Id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE activity (
   Id INT(11) NOT NULL AUTO_INCREMENT,
-  DeviceId VARCHAR(50) NOT NULL,
+  RegistryId INT(11) NOT NULL,
   CompanyId INT(11) NOT NULL,
-  CustomerId INT(11) NOT NULL,
   BranchId INT(11) NOT NULL,
   EmployeeId INT(11) NOT NULL,
   VisitDate DATETIME NOT NULL,
   Applied INT(1) NOT NULL,
   PRIMARY KEY (Id),
-  FOREIGN KEY (DeviceId, CompanyId, CustomerId) REFERENCES registry(DeviceId, CompanyId, CustomerId),
-  FOREIGN KEY (CompanyId, BranchId) REFERENCES branch(CompanyId, BranchId)
+  FOREIGN KEY (RegistryId) REFERENCES registry(Id),
+  FOREIGN KEY (CompanyId, BranchId) REFERENCES branch(CompanyId, Id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE user (

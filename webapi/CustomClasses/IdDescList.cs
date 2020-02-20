@@ -7,6 +7,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.customclasses
             Id = id;
             Description = desc;
         }
+        
         public int Id { get; set; }
         public string Description { get; set; }
     }

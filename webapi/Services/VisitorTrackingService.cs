@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore;
 using jlcsolutionscr.com.visitortracking.webapi.customclasses;
 using jlcsolutionscr.com.visitortracking.webapi.dataaccess;
 using jlcsolutionscr.com.visitortracking.webapi.dataaccess.domain;
@@ -198,6 +199,15 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     User entity = dbContext.UserRepository.FirstOrDefault(x => x.Id == id);
+                    if (entity != null) {
+                        List<IdDescList> roleList = new List<IdDescList>();
+                        List<RolePerUser> list = dbContext.RolePerUserRepository.Where(x => x.UserId == entity.Id).ToList();
+                        list.ForEach(item => {
+                            Role role = dbContext.RoleRepository.Find(item.RoleId);
+                            roleList.Add(new IdDescList(role.Id, role.Description));
+                        });
+                        entity.RoleList = roleList;
+                    }
                     return entity;
                 }
                 catch (Exception ex)
@@ -216,6 +226,12 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     entity.Username = entity.Username.ToUpper();
                     if (entity.Username == "ADMIN" || entity.Username == "MOBILEAPP") throw new Exception("El código de usuario ingresado no está disponible");
                     dbContext.UserRepository.Add(entity);
+                    entity.RoleList.ForEach(role => {
+                        RolePerUser rolePerUser = new RolePerUser();
+                        rolePerUser.UserId = entity.Id;
+                        rolePerUser.RoleId = role.Id;
+                        dbContext.RolePerUserRepository.Add(rolePerUser);
+                    });
                     dbContext.Commit();
                     return entity.Id.ToString();
                 }
@@ -234,11 +250,37 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     dbContext.NotificarModificacion(entity);
+                    List<RolePerUser> list = dbContext.RolePerUserRepository.Where(x => x.UserId == entity.Id).ToList();
+                    list.ForEach(item => {
+                        dbContext.NotificarEliminacion(item);
+                    });
+                    entity.RoleList.ForEach(role => {
+                        RolePerUser rolePerUser = new RolePerUser();
+                        rolePerUser.UserId = entity.Id;
+                        rolePerUser.RoleId = role.Id;
+                        dbContext.RolePerUserRepository.Add(rolePerUser);
+                    });
                     dbContext.Commit();
                 }
                 catch (Exception ex)
                 {
                     dbContext.RollBack();
+                    throw ex;
+                }
+            }
+        }
+
+        public List<Role> GetRoleList()
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    List<Role> list = dbContext.RoleRepository.ToList();
+                    return list;
+                }
+                catch (Exception ex)
+                {
                     throw ex;
                 }
             }
@@ -260,13 +302,13 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public Branch GetBranch(int id)
+        public Branch GetBranch(int companyId, int id)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
                 {
-                    Branch entity = dbContext.BranchRepository.FirstOrDefault(x => x.Id == id);
+                    Branch entity = dbContext.BranchRepository.FirstOrDefault(x => x.CompanyId == companyId && x.Id == id);
                     return entity;
                 }
                 catch (Exception ex)
@@ -312,14 +354,18 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public List<Customer> GetCustomerList(string deviceId)
+        public List<Customer> GetRegisteredCustomerList(string accessCode)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
                 {
+                    Branch branch = dbContext.BranchRepository.FirstOrDefault(x => x.AccessCode == accessCode);
+                    if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
+                    Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
+                    if (company.ExpiresAt < DateTime.Now) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
                     List<Customer> list = dbContext.CustomerRepository.Join(dbContext.RegistryRepository, x => x.Id, y => y.CustomerId, (x, y) => new { x, y })
-                        .Where(x => x.y.DeviceId == deviceId)
+                        .Where(x => x.y.CompanyId == company.Id && x.y.Status == StaticStatus.Active)
                         .Select(x => x.x).ToList();
                     return list;
                 }
@@ -419,6 +465,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             {
                 try
                 {
+                    int maxId = dbContext.EmployeeRepository.Where(x => x.CompanyId == entity.CompanyId).Max(x => x.Id);
+                    entity.Id = maxId + 1;
                     dbContext.EmployeeRepository.Add(entity);
                     dbContext.Commit();
                     return entity.Id.ToString();
@@ -448,7 +496,23 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public void CustomerRegistry(string deviceId, string accessCode, Customer customer)
+        public List<Registry> GetPendingRegistryList(int companyId)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    List<Registry> list = dbContext.RegistryRepository.Where(x => x.CompanyId == companyId && x.Status == StaticStatus.Pending).ToList();
+                    return list;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
+        public void CustomerRegistry(string deviceId, string accessCode, int employeeId, string name, string identifier, string address, string phoneNumber, string mobileNumber, string email)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
@@ -458,20 +522,43 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
                     if (company.ExpiresAt < DateTime.Now) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
-                    dbContext.CustomerRepository.Add(customer);
+                    Customer customer = dbContext.CustomerRepository.FirstOrDefault(x => x.Identifier == identifier);
+                    if (customer == null)
+                    {
+                        customer = new Customer();
+                        customer.Name = name;
+                        customer.Identifier = identifier;
+                        customer.Address = address;
+                        customer.PhoneNumber = phoneNumber;
+                        customer.MobileNumber = mobileNumber;
+                        customer.Email = email;
+                    }
+                    else
+                    {
+                        Registry pendingRequest = dbContext.RegistryRepository.AsNoTracking().FirstOrDefault(x => x.CompanyId == company.Id && x.CustomerId == customer.Id && x.Status == StaticStatus.Pending);
+                        if (pendingRequest != null) throw new Exception("Existe una solicitud de inscripción pendiente. No es posible ingresar otra solicitud");
+                        Registry registered = dbContext.RegistryRepository.AsNoTracking().FirstOrDefault(x => x.CompanyId == company.Id && x.CustomerId == customer.Id && x.Status != StaticStatus.Pending);
+                        if (registered != null) throw new Exception("La identificación suministrada ya se encuentra registrada en la empresa. No es posible ingresar otra solicitud");
+                        customer.Name = name;
+                        customer.Address = address;
+                        customer.PhoneNumber = phoneNumber;
+                        customer.MobileNumber = mobileNumber;
+                        customer.Email = email;
+                        dbContext.NotificarModificacion(customer);
+                    }
                     Registry registry = new Registry();
                     registry.DeviceId = deviceId;
                     registry.CompanyId = branch.CompanyId;
-                    registry.CustomerId = customer.Id;
+                    registry.Customer = customer;
                     registry.RegisterDate = DateTime.Now;
-                    registry.Status = "P";
+                    registry.Status = StaticStatus.Pending;
                     registry.VisitCount = 1;
                     dbContext.RegistryRepository.Add(registry);
                     Activity activity = new Activity();
-                    activity.DeviceId = deviceId;
+                    activity.Registry = registry;
                     activity.CompanyId = branch.CompanyId;
-                    activity.CustomerId = customer.Id;
                     activity.BranchId = branch.Id;
+                    activity.EmployeeId = employeeId;
                     activity.VisitDate = DateTime.Now;
                     activity.Applied = false;
                     dbContext.ActivityRepository.Add(activity);
@@ -485,14 +572,15 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public void ApproveRegistry(string deviceId, int companyId, int customerId)
+        public void RegistryApproval(int registryId)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
                 {
-                    Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.DeviceId == deviceId && x.CompanyId == companyId && x.CustomerId == customerId);
-                    registry.Status = "A";
+                    Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.Id == registryId);
+                    if (registry.Status != StaticStatus.Pending) throw new Exception("La solicitud de inscripción ya no está pendiente de aprobación");
+                    registry.Status = StaticStatus.Active;
                     dbContext.NotificarModificacion(registry);
                     dbContext.Commit();
                 }
@@ -517,7 +605,6 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.DeviceId == deviceId && x.CompanyId == branch.CompanyId && x.CustomerId == customerId);
                     if (registry == null) throw new Exception("El dispositivo no ha sido registrado. Por favor proceda con el registro.");
                     int visitNumber = registry.VisitCount + 1;
-                    
                     bool willApply = false;
                     if (visitNumber == company.PromotionAt)
                     {
@@ -530,10 +617,10 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     }
                     dbContext.NotificarModificacion(registry);
                     Activity activity = new Activity();
-                    activity.DeviceId = deviceId;
+                    activity.RegistryId = registry.Id;
                     activity.CompanyId = branch.CompanyId;
-                    activity.CustomerId = customerId;
                     activity.BranchId = branch.Id;
+                    activity.EmployeeId = employeeId;
                     activity.VisitDate = DateTime.Now;
                     activity.Applied = willApply;
                     dbContext.ActivityRepository.Add(activity);

@@ -45,6 +45,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseExceptionHandler("/error");
             app.UseCors(MyAllowSpecificOrigins);
             app.UseHttpsRedirection();
             app.UseRouting();

@@ -9,11 +9,14 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess.domain
     {
         [Key]
         public int Id { get; set; }
-        public string DeviceId { get; set; }
+        [ForeignKey("Registry")]
+        public int RegistryId { get; set; }
         public int CompanyId { get; set; }
-        public int CustomerId { get; set; }
         public int BranchId { get; set; }
+        public int EmployeeId { get; set; }
         public DateTime VisitDate { get; set; }
         public bool Applied { get; set; }
+
+        public Registry Registry { get; set; }
     }
 }
