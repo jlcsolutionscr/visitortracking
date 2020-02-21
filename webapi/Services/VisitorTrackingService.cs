@@ -31,7 +31,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     AuthorizationEntry entry = new AuthorizationEntry
                     {
                         Id = strGuid,
-                        EmitedAt = DateTime.UtcNow
+                        EmitedAt = DateTime.UtcNow.AddHours(-6)
                     };
                     dbContext.AuthorizationEntryRepository.Add(entry);
                     dbContext.Commit();
@@ -54,7 +54,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     string deencryptedToken = Utilities.DecryptString(token);
                     AuthorizationEntry entry = dbContext.AuthorizationEntryRepository.Where(x => x.Id == deencryptedToken).FirstOrDefault();
                     if (entry == null) throw new Exception("La sessión del usuario no es válida. Debe reiniciar su sesión.");
-                    if (entry.EmitedAt < DateTime.UtcNow.AddHours(-12))
+                    if (entry.EmitedAt < DateTime.UtcNow.AddHours(-18))
                     {
                         dbContext.NotificarEliminacion(entry);
                         dbContext.Commit();
@@ -84,7 +84,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     {
                         company = dbContext.CompanyRepository.FirstOrDefault(x => x.Identifier == identifier);
                         if (company == null) throw new Exception("La identificación suministrada no pertenece a ninguna empresa registrada en el sistema. Por favor verifique la información suministrada.");
-                        if (company.ExpiresAt < DateTime.Today) throw new Exception("La vigencia del plan de facturación ha expirado. Por favor, pongase en contacto con su proveedor de servicio.");
+                        if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La vigencia del plan de facturación ha expirado. Por favor, pongase en contacto con su proveedor de servicio.");
                         user = dbContext.UserRepository.FirstOrDefault(x => x.Username == username.ToUpper() && x.Identifier == identifier);
                     }
                     if (user == null) throw new Exception("Usuario no registrado en la empresa suministrada. Por favor verifique la información suministrada.");
@@ -539,7 +539,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     Branch branch = dbContext.BranchRepository.FirstOrDefault(x => x.AccessCode == accessCode);
                     if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
-                    if (company.ExpiresAt < DateTime.Now) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
+                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
                     List<Customer> list = dbContext.CustomerRepository.Join(dbContext.RegistryRepository, x => x.Id, y => y.CustomerId, (x, y) => new { x, y })
                         .Where(x => x.y.DeviceId == deviceId && x.y.CompanyId == company.Id)
                         .Select(x => x.x).ToList();
@@ -566,7 +566,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     Branch branch = dbContext.BranchRepository.FirstOrDefault(x => x.AccessCode == accessCode);
                     if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
-                    if (company.ExpiresAt < DateTime.Now) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
+                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
                     Customer customer = dbContext.CustomerRepository.FirstOrDefault(x => x.Identifier == identifier);
                     Registry registry = null;
                     if (customer == null)
@@ -603,7 +603,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         registry.DeviceId = deviceId;
                         registry.CompanyId = branch.CompanyId;
                         registry.Customer = customer;
-                        registry.RegisterDate = DateTime.Now;
+                        registry.RegisterDate = DateTime.UtcNow.AddHours(-6);
                         registry.Status = StaticStatus.Pending;
                         registry.VisitCount = 1;
                         dbContext.RegistryRepository.Add(registry);
@@ -613,7 +613,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     activity.CompanyId = branch.CompanyId;
                     activity.BranchId = branch.Id;
                     activity.EmployeeId = employeeId;
-                    activity.VisitDate = DateTime.Now;
+                    activity.VisitDate = DateTime.UtcNow.AddHours(-6);
                     activity.Applied = false;
                     dbContext.ActivityRepository.Add(activity);
                     dbContext.Commit();
@@ -655,7 +655,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     Branch branch = dbContext.BranchRepository.FirstOrDefault(x => x.AccessCode == accessCode);
                     if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
-                    if (company.ExpiresAt < DateTime.Now) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
+                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
                     Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.DeviceId == deviceId && x.CompanyId == branch.CompanyId && x.CustomerId == customerId);
                     if (registry == null) throw new Exception("El dispositivo no ha sido registrado. Por favor proceda con el registro.");
                     int visitNumber = registry.VisitCount + 1;
@@ -675,7 +675,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     activity.CompanyId = branch.CompanyId;
                     activity.BranchId = branch.Id;
                     activity.EmployeeId = employeeId;
-                    activity.VisitDate = DateTime.Now;
+                    activity.VisitDate = DateTime.UtcNow.AddHours(-6);
                     activity.Applied = willApply;
                     dbContext.ActivityRepository.Add(activity);
                     dbContext.Commit();
