@@ -690,17 +690,27 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public List<Activity> GetVisitorActivityList(int companyId, int branchId, string startDate, string endDate)
+        public List<RegistryData> GetVisitorActivityList(int companyId, int branchId, string startDate, string endDate)
         {
             DateTime datStartDate = DateTime.ParseExact(startDate + " 00:00:01", strFormat, provider);
             DateTime datEndDate = DateTime.ParseExact(endDate + " 23:59:59", strFormat, provider);
-            List<Activity> list = new List<Activity>();
+            List<RegistryData> results = new List<RegistryData>();
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
                 {
-                    list = dbContext.ActivityRepository.Where(x => x.CompanyId == companyId && x.BranchId == branchId && x.VisitDate >= datStartDate && x.VisitDate <= datEndDate).ToList();
-                    return list;
+                    var list = dbContext.CustomerRepository.Join(dbContext.RegistryRepository, x => x.Id, y => y.CustomerId, (x, y) => new { x, y })
+                        .Join(dbContext.ActivityRepository, x => x.y.Id, y => y.RegistryId, (x, y) => new { x, y })
+                        .Where(x => x.y.CompanyId == companyId && x.y.BranchId == branchId && x.y.VisitDate >= datStartDate && x.y.VisitDate <= datEndDate)
+                        .Select(x => new { Id = x.y.Id, Name = x.x.x.Name, x.y.VisitDate }).ToList();
+                        
+                    foreach(var entry in list)
+                    {
+                        RegistryData item = new RegistryData(entry.Id, entry.Name, entry.VisitDate);
+                        results.Add(item);
+                    }
+                    return results;
+                    
                 }
                 catch (Exception ex)
                 {

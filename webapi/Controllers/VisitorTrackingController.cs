@@ -149,7 +149,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                             branchId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "BranchId").Value.ToString());
                             string startDate = message.Parameters.FirstOrDefault(x => x.Key == "StartDate").Value.ToString();
                             string endDate = message.Parameters.FirstOrDefault(x => x.Key == "EndDate").Value.ToString();
-                            List<Activity> activityList = service.GetVisitorActivityList(companyId, branchId, startDate, endDate);
+                            List<RegistryData> activityList = service.GetVisitorActivityList(companyId, branchId, startDate, endDate);
                             if (activityList.Count > 0)
                                 response = JsonSerializer.Serialize(activityList, new JsonSerializerOptions());
                             break;
