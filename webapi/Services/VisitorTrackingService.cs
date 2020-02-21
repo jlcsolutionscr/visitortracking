@@ -262,7 +262,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     dbContext.UserRepository.Add(entity);
                     entity.RoleList.ForEach(role => {
                         RolePerUser rolePerUser = new RolePerUser();
-                        rolePerUser.UserId = entity.Id;
+                        rolePerUser.User = entity;
                         rolePerUser.RoleId = role.Id;
                         dbContext.RolePerUserRepository.Add(rolePerUser);
                     });
@@ -283,6 +283,11 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             {
                 try
                 {
+                    if (entity.Password == "")
+                    {
+                        string password = dbContext.UserRepository.AsNoTracking().FirstOrDefault(x => x.Id == entity.Id).Password;
+                        entity.Password = password;
+                    }
                     dbContext.ChangeNotify(entity);
                     List<RolePerUser> list = dbContext.RolePerUserRepository.Where(x => x.UserId == entity.Id).ToList();
                     list.ForEach(item => {

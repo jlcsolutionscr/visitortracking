@@ -6,6 +6,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess.domain
     public class RolePerUser
     {
         public int RoleId { get; set; }
+        [ForeignKey("User")]
         public int UserId { get; set; }
+
+        public User User { get; set; }
     }
 }

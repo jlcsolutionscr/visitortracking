@@ -2,6 +2,10 @@ namespace jlcsolutionscr.com.visitortracking.webapi.customclasses
 {
     public class IdDescList
     {
+        public IdDescList()
+        {
+        }
+
         public IdDescList(int id, string desc)
         {
             Id = id;
