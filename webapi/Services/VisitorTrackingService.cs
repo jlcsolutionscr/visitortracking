@@ -45,6 +45,28 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
+        public void RemoveInvalidEntries()
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                string strGuid = Guid.NewGuid().ToString();
+                try
+                {
+                    DateTime detMaxDate = DateTime.UtcNow.AddHours(-18);
+                    var list = dbContext.AuthorizationEntryRepository.Where(x => x.EmitedAt < detMaxDate).ToList();
+                    foreach(AuthorizationEntry entry in list)
+                    {
+                        dbContext.RemoveNotify(entry);
+                        dbContext.Commit();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
         public void ValidateAccessCode(string token)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
@@ -56,7 +78,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     if (entry == null) throw new Exception("La sessión del usuario no es válida. Debe reiniciar su sesión.");
                     if (entry.EmitedAt < DateTime.UtcNow.AddHours(-18))
                     {
-                        dbContext.NotificarEliminacion(entry);
+                        dbContext.RemoveNotify(entry);
                         dbContext.Commit();
                         throw new Exception("La sessión del usuario se encuentra expirada. Debe reiniciar su sesión.");
                     }
@@ -171,7 +193,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             {
                 try
                 {
-                    dbContext.NotificarModificacion(entity);
+                    dbContext.ChangeNotify(entity);
                     dbContext.Commit();
                 }
                 catch (Exception ex)
@@ -261,10 +283,10 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             {
                 try
                 {
-                    dbContext.NotificarModificacion(entity);
+                    dbContext.ChangeNotify(entity);
                     List<RolePerUser> list = dbContext.RolePerUserRepository.Where(x => x.UserId == entity.Id).ToList();
                     list.ForEach(item => {
-                        dbContext.NotificarEliminacion(item);
+                        dbContext.RemoveNotify(item);
                     });
                     entity.RoleList.ForEach(role => {
                         RolePerUser rolePerUser = new RolePerUser();
@@ -367,7 +389,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             {
                 try
                 {
-                    dbContext.NotificarModificacion(entity);
+                    dbContext.ChangeNotify(entity);
                     dbContext.Commit();
                 }
                 catch (Exception ex)
@@ -418,7 +440,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             {
                 try
                 {
-                    dbContext.NotificarModificacion(entity);
+                    dbContext.ChangeNotify(entity);
                     dbContext.Commit();
                 }
                 catch (Exception ex)
@@ -493,7 +515,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             {
                 try
                 {
-                    dbContext.NotificarModificacion(entity);
+                    dbContext.ChangeNotify(entity);
                     dbContext.Commit();
                 }
                 catch (Exception ex)
@@ -517,7 +539,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         
                     foreach(var entry in list)
                     {
-                        RegistryData item = new RegistryData(entry.Id, entry.Name, entry.RegisterDate);
+                        RegistryData item = new RegistryData(entry.Id, entry.Name, entry.RegisterDate.ToString(strFormat));
                         results.Add(item);
                     }
                     return results;
@@ -589,13 +611,13 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         customer.PhoneNumber = phoneNumber;
                         customer.MobileNumber = mobileNumber;
                         customer.Email = email;
-                        dbContext.NotificarModificacion(customer);
+                        dbContext.ChangeNotify(customer);
                     }
                     if (registry != null) {
                         if (registry.DeviceId == deviceId) throw new Exception("La identificación suministrada ya se encuentra registrada mediante este dispositivo. No es posible ingresar otra solicitud");
                         registry.DeviceId = deviceId;
                         registry.VisitCount += 1;
-                        dbContext.NotificarModificacion(registry);
+                        dbContext.ChangeNotify(registry);
                     }
                     else
                     {
@@ -635,7 +657,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.Id == registryId);
                     if (registry.Status != StaticStatus.Pending) throw new Exception("La solicitud de inscripción ya no está pendiente de aprobación");
                     registry.Status = StaticStatus.Active;
-                    dbContext.NotificarModificacion(registry);
+                    dbContext.ChangeNotify(registry);
                     dbContext.Commit();
                 }
                 catch (Exception ex)
@@ -669,7 +691,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     {
                         registry.VisitCount = visitNumber;
                     }
-                    dbContext.NotificarModificacion(registry);
+                    dbContext.ChangeNotify(registry);
                     Activity activity = new Activity();
                     activity.RegistryId = registry.Id;
                     activity.CompanyId = branch.CompanyId;
@@ -706,7 +728,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         
                     foreach(var entry in list)
                     {
-                        RegistryData item = new RegistryData(entry.Id, entry.Name, entry.VisitDate);
+                        RegistryData item = new RegistryData(entry.Id, entry.Name, entry.VisitDate.ToString(strFormat));
                         results.Add(item);
                     }
                     return results;

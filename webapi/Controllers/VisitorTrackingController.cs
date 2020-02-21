@@ -56,6 +56,23 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
             }
         }
 
+        [HttpPost("removeinvalidentries")]
+        public void RemoveInvalidEntries([FromBody] string text)
+        {
+            using (var service = new VisitorTrackingService(_settings))
+            {
+                try
+                {
+                    service.RemoveInvalidEntries();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    throw ex;
+                }
+            }
+        }
+
         [HttpPost("messagewithresponse")]
         public string MessageWithResponse([FromBody] string text)
         {

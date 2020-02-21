@@ -4,7 +4,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.customclasses
 {
     public class RegistryData
     {
-        public RegistryData(int id, string name, DateTime date)
+        public RegistryData(int id, string name, string date)
         {
             RegistryId = id;
             CustomerName = name;
@@ -13,6 +13,6 @@ namespace jlcsolutionscr.com.visitortracking.webapi.customclasses
 
         public int RegistryId { get; set; }
         public string CustomerName { get; set; }
-        public DateTime RegisterDate { get; set; }
+        public string RegisterDate { get; set; }
     }
 }

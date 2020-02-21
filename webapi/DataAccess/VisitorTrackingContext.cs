@@ -40,12 +40,12 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess
         public DbSet<AuthorizationEntry> AuthorizationEntryRepository { get; set; }
 
 
-        public void NotificarModificacion<TEntity>(TEntity entidad) where TEntity : class
+        public void ChangeNotify<TEntity>(TEntity entidad) where TEntity : class
         {
             Entry<TEntity>(entidad).State = EntityState.Modified;
         }
 
-        public void NotificarEliminacion<TEntity>(TEntity entidad) where TEntity : class
+        public void RemoveNotify<TEntity>(TEntity entidad) where TEntity : class
         {
             Entry<TEntity>(entidad).State = EntityState.Deleted;
         }
