@@ -45,6 +45,23 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
+        public string GetLatestAppVersion()
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    Parameter param = dbContext.ParameterRepository.FirstOrDefault(x => x.Id == 1);
+                    if (param == null) throw new Exception("El sistema no posee el parámetro de la versión del app móvil.");
+                    return param.Value;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
         public void RemoveInvalidEntries()
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))

@@ -56,6 +56,24 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
             }
         }
 
+        [HttpGet("getlatestappversion")]
+        public string GetLatestAppVersion()
+        {
+            using (var service = new VisitorTrackingService(_settings))
+            {
+                try
+                {
+                    string version = service.GetLatestAppVersion();
+                    return JsonSerializer.Serialize(version, new JsonSerializerOptions());
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    throw ex;
+                }
+            }
+        }
+
         [HttpPost("removeinvalidentries")]
         public void RemoveInvalidEntries([FromBody] string text)
         {
