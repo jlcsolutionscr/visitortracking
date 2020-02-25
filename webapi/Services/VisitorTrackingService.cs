@@ -548,6 +548,26 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
+        public Branch GetBranchByCode(string accessCode)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    Branch branch = dbContext.BranchRepository.FirstOrDefault(x => x.AccessCode == accessCode);
+                    if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
+                    if (!branch.Active) throw new Exception("La sucursal se encuentra inactiva en el sistema. Consulte con su proveedor del servicio.");
+                    Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
+                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
+                    return branch;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
         public List<RegistryData> GetPendingRegistryList(int companyId)
         {
             List<RegistryData> results = new List<RegistryData>();
@@ -557,8 +577,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 {
                     var list = dbContext.CustomerRepository.Join(dbContext.RegistryRepository, x => x.Id, y => y.CustomerId, (x, y) => new { x, y })
                         .Where(x => x.y.CompanyId == companyId && x.y.Status == StaticStatus.Pending)
-                        .Select(x => new { Id = x.y.Id, Name = x.x.Name, RegisterDate = x.y.RegisterDate }).ToList();
-                        
+                        .Select(x => new { Id = x.y.Id, Name = x.x.Name, RegisterDate = x.y.RegisterDate }).ToList();   
                     foreach(var entry in list)
                     {
                         RegistryData item = new RegistryData(entry.Id, entry.Name, entry.RegisterDate.ToString(strFormat));
@@ -582,6 +601,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 {
                     Branch branch = dbContext.BranchRepository.FirstOrDefault(x => x.AccessCode == accessCode);
                     if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
+                    if (!branch.Active) throw new Exception("La sucursal se encuentra inactiva en el sistema. Consulte con su proveedor del servicio.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
                     if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
                     List<Customer> list = dbContext.CustomerRepository.Join(dbContext.RegistryRepository, x => x.Id, y => y.CustomerId, (x, y) => new { x, y })
@@ -609,6 +629,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 {
                     Branch branch = dbContext.BranchRepository.FirstOrDefault(x => x.AccessCode == accessCode);
                     if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
+                    if (!branch.Active) throw new Exception("La sucursal se encuentra inactiva en el sistema. Consulte con su proveedor del servicio.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
                     if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
                     Customer customer = dbContext.CustomerRepository.FirstOrDefault(x => x.Identifier == identifier);
@@ -698,6 +719,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 {
                     Branch branch = dbContext.BranchRepository.FirstOrDefault(x => x.AccessCode == accessCode);
                     if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
+                    if (!branch.Active) throw new Exception("La sucursal se encuentra inactiva en el sistema. Consulte con su proveedor del servicio.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
                     if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
                     Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.DeviceId == deviceId && x.CompanyId == branch.CompanyId && x.CustomerId == customerId);

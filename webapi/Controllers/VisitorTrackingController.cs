@@ -74,8 +74,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
             }
         }
 
-        [HttpPost("removeinvalidentries")]
-        public void RemoveInvalidEntries([FromBody] string text)
+        [HttpGet("removeinvalidentries")]
+        public void RemoveInvalidEntries()
         {
             using (var service = new VisitorTrackingService(_settings))
             {
@@ -165,6 +165,11 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                             employeeId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "EmployeeId").Value.ToString());
                             employee = service.GetEmployee(employeeId);
                             response = JsonSerializer.Serialize(employee, new JsonSerializerOptions());
+                            break;
+                        case "GetBranchByCode":
+                            accessCode = message.Parameters.FirstOrDefault(x => x.Key == "AccessCode").Value.ToString();
+                            branch = service.GetBranchByCode(accessCode);
+                            response = JsonSerializer.Serialize(branch, new JsonSerializerOptions());
                             break;
                         case "GetPendingRegistryList":
                             companyId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CompanyId").Value.ToString());
