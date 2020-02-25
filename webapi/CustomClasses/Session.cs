@@ -12,7 +12,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.customclasses
         public string CompanyName { get; set; }
         public string CompanyIdentifier { get; set; }
         public string Token { get; set; }
-        public IList<RoleItem> RolePerUser { get; set; }
+        public List<RoleItem> RolePerUser { get; set; }
     }
 
     public class RoleItem

@@ -131,8 +131,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     List<RolePerUser> roles = dbContext.RolePerUserRepository.Where(x => x.UserId == user.Id).ToList();
                     Session session = new Session();
                     session.CompanyId = company == null ? -1 : company.Id;
-                    session.CompanyName = company == null ? "" : company.CompanyName;
-                    session.CompanyIdentifier = company == null ? "" : company.Identifier;
+                    session.CompanyName = company == null ? null : company.CompanyName;
+                    session.CompanyIdentifier = company == null ? null : company.Identifier;
                     roles.ForEach(item => {
                         RoleItem role = new RoleItem(item.RoleId, item.UserId);
                         session.RolePerUser.Add(role);
