@@ -621,7 +621,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public void CustomerRegistry(string deviceId, string accessCode, int employeeId, string name, string identifier, string address, string phoneNumber, string mobileNumber, string email)
+        public void CustomerRegistry(string deviceId, string accessCode, int employeeId, string name, string identifier, string address, string mobileNumber, string email)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
@@ -640,7 +640,6 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         customer.Name = name;
                         customer.Identifier = identifier;
                         customer.Address = address;
-                        customer.PhoneNumber = phoneNumber;
                         customer.MobileNumber = mobileNumber;
                         customer.Email = email;
                     }
@@ -651,7 +650,6 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         registry = dbContext.RegistryRepository.FirstOrDefault(x => x.CompanyId == company.Id && x.CustomerId == customer.Id && x.Status != StaticStatus.Pending);
                         customer.Name = name;
                         customer.Address = address;
-                        customer.PhoneNumber = phoneNumber;
                         customer.MobileNumber = mobileNumber;
                         customer.Email = email;
                         dbContext.ChangeNotify(customer);

@@ -280,10 +280,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                             string name = message.Parameters.FirstOrDefault(x => x.Key == "Name").Value.ToString();
                             string identifier = message.Parameters.FirstOrDefault(x => x.Key == "Identifier").Value.ToString();
                             string address = message.Parameters.FirstOrDefault(x => x.Key == "Address").Value.ToString();
-                            string phoneNumber = message.Parameters.FirstOrDefault(x => x.Key == "PhoneNumber").Value.ToString();
                             string mobileNumber = message.Parameters.FirstOrDefault(x => x.Key == "MobileNumber").Value.ToString();
                             string email = message.Parameters.FirstOrDefault(x => x.Key == "Email").Value.ToString();
-                            service.CustomerRegistry(deviceId, accessCode, employeeId, name, identifier, address, phoneNumber, mobileNumber, email);
+                            service.CustomerRegistry(deviceId, accessCode, employeeId, name, identifier, address, mobileNumber, email);
                             break;
                         case "RegistryApproval":
                             int registryId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "RegistryId").Value.ToString());
