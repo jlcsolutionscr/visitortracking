@@ -2,8 +2,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess.domain
 {
-    [Table("product")]
-    public class Product
+    [Table("service")]
+    public class Service
     {
         public int CompanyId { get; set; }
         public int Id { get; set; }

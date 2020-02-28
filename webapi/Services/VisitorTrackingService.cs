@@ -574,14 +574,14 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public List<IdDescList> GetProductList(int companyId)
+        public List<IdDescList> GetServiceList(int companyId)
         {
             List<IdDescList> results = new List<IdDescList>();
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
                 {
-                    List<Product> list = dbContext.ProductRepository.Where(x => x.CompanyId == companyId).ToList();
+                    List<Service> list = dbContext.ServiceRepository.Where(x => x.CompanyId == companyId).ToList();
                     foreach(var employee in list)
                     {
                         IdDescList item = new IdDescList(employee.Id, employee.Description);
@@ -596,14 +596,14 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public List<IdDescList> GetActiveProductList(int companyId)
+        public List<IdDescList> GetActiveServiceList(int companyId)
         {
             List<IdDescList> results = new List<IdDescList>();
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
                 {
-                    List<Product> list = dbContext.ProductRepository.Where(x => x.CompanyId == companyId && x.Active).ToList();
+                    List<Service> list = dbContext.ServiceRepository.Where(x => x.CompanyId == companyId && x.Active).ToList();
                     foreach(var employee in list)
                     {
                         IdDescList item = new IdDescList(employee.Id, employee.Description);
@@ -618,13 +618,13 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public Product GetProduct(int id)
+        public Service GetService(int id)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
                 {
-                    Product entity = dbContext.ProductRepository.FirstOrDefault(x => x.Id == id);
+                    Service entity = dbContext.ServiceRepository.FirstOrDefault(x => x.Id == id);
                     return entity;
                 }
                 catch (Exception ex)
@@ -634,17 +634,17 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public string AddProduct(Product entity)
+        public string AddService(Service entity)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
                 {
-                    List<Product> list = dbContext.ProductRepository.Where(x => x.CompanyId == entity.CompanyId).ToList();
+                    List<Service> list = dbContext.ServiceRepository.Where(x => x.CompanyId == entity.CompanyId).ToList();
                     int maxId = 0;
-                    if (list.Count > 0) maxId = dbContext.ProductRepository.Where(x => x.CompanyId == entity.CompanyId).Max(x => x.Id);
+                    if (list.Count > 0) maxId = dbContext.ServiceRepository.Where(x => x.CompanyId == entity.CompanyId).Max(x => x.Id);
                     entity.Id = maxId + 1;
-                    dbContext.ProductRepository.Add(entity);
+                    dbContext.ServiceRepository.Add(entity);
                     dbContext.Commit();
                     return entity.Id.ToString();
                 }
@@ -656,7 +656,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public void UpdateProduct(Product entity)
+        public void UpdateService(Service entity)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
@@ -693,9 +693,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public List<RegistryData> GetPendingRegistryList(int companyId)
+        public List<ActivityList> GetPendingRegistryList(int companyId)
         {
-            List<RegistryData> results = new List<RegistryData>();
+            List<ActivityList> results = new List<ActivityList>();
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
@@ -705,7 +705,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         .Select(x => new { Id = x.y.Id, Name = x.x.Name, RegisterDate = x.y.RegisterDate }).ToList();   
                     foreach(var entry in list)
                     {
-                        RegistryData item = new RegistryData(entry.Id, entry.Name, entry.RegisterDate.ToString(strFormat));
+                        ActivityList item = new ActivityList(entry.Id, entry.Name, entry.RegisterDate.ToString(strFormat), "");
                         results.Add(item);
                     }
                     return results;
@@ -801,7 +801,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     activity.CompanyId = branch.CompanyId;
                     activity.BranchId = branch.Id;
                     activity.EmployeeId = employeeId;
-                    activity.ProductId = productId;
+                    activity.ServiceId = productId;
                     activity.Rating = rating;
                     activity.VisitDate = DateTime.UtcNow.AddHours(company.UtcTimeFactor);
                     activity.Applied = false;
@@ -866,7 +866,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     activity.CompanyId = branch.CompanyId;
                     activity.BranchId = branch.Id;
                     activity.EmployeeId = employeeId;
-                    activity.ProductId = productId;
+                    activity.ServiceId = productId;
                     activity.Rating = rating;
                     activity.VisitDate = DateTime.UtcNow.AddHours(company.UtcTimeFactor);
                     activity.Applied = willApply;
@@ -883,23 +883,54 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public List<RegistryData> GetVisitorActivityList(int companyId, int branchId, string startDate, string endDate)
+        public List<ActivityList> GetVisitorActivityList(int companyId, int branchId, string startDate, string endDate)
         {
             DateTime datStartDate = DateTime.ParseExact(startDate + " 00:00:01", strFormat, provider);
             DateTime datEndDate = DateTime.ParseExact(endDate + " 23:59:59", strFormat, provider);
-            List<RegistryData> results = new List<RegistryData>();
+            List<ActivityList> results = new List<ActivityList>();
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
                 {
                     var list = dbContext.CustomerRepository.Join(dbContext.RegistryRepository, x => x.Id, y => y.CustomerId, (x, y) => new { x, y })
                         .Join(dbContext.ActivityRepository, x => x.y.Id, y => y.RegistryId, (x, y) => new { x, y })
-                        .Where(x => x.y.CompanyId == companyId && x.y.BranchId == branchId && x.y.VisitDate >= datStartDate && x.y.VisitDate <= datEndDate)
-                        .Select(x => new { Id = x.y.Id, Name = x.x.x.Name, x.y.VisitDate }).ToList();
+                        .Join(dbContext.ServiceRepository, x => x.y.ServiceId, y => y.Id, (x, y) => new { x, y })
+                        .Where(x => x.y.CompanyId == companyId && x.x.y.BranchId == branchId && x.x.y.VisitDate >= datStartDate && x.x.y.VisitDate <= datEndDate)
+                        .Select(x => new { Id = x.y.Id, Name = x.x.x.x.Name, x.x.y.VisitDate, Type = x.y.Description }).ToList();
                         
                     foreach(var entry in list)
                     {
-                        RegistryData item = new RegistryData(entry.Id, entry.Name, entry.VisitDate.ToString(strFormat));
+                        ActivityList item = new ActivityList(entry.Id, entry.Name, entry.VisitDate.ToString(strFormat), entry.Type);
+                        results.Add(item);
+                    }
+                    return results;
+                    
+                }
+                catch (Exception ex)
+                {
+                    dbContext.RollBack();
+                    throw ex;
+                }
+            }
+        }
+
+        public List<ActivityResume> GetActivityPerEmployeeList(int companyId, int branchId, string startDate, string endDate)
+        {
+            DateTime datStartDate = DateTime.ParseExact(startDate + " 00:00:01", strFormat, provider);
+            DateTime datEndDate = DateTime.ParseExact(endDate + " 23:59:59", strFormat, provider);
+            List<ActivityResume> results = new List<ActivityResume>();
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    var list = dbContext.EmployeeRepository.Join(dbContext.ActivityRepository, x => x.Id, y => y.EmployeeId, (x, y) => new { x, y })
+                        .Where(x => x.y.CompanyId == companyId && x.y.BranchId == branchId && x.y.VisitDate >= datStartDate && x.y.VisitDate <= datEndDate)
+                        .GroupBy(x => x.x.Name)
+                        .Select(g => new { Name = g.Key, Count = g.Count() });
+                        
+                    foreach(var entry in list)
+                    {
+                        ActivityResume item = new ActivityResume(entry.Name, entry.Count);
                         results.Add(item);
                     }
                     return results;
