@@ -48,7 +48,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
             {
                 try
                 {
-                    Session session = service.UserLogin(username, password, identifier);
+                    string fixedPassword = password.Replace(" ", "+");
+                    Session session = service.UserLogin(username, fixedPassword, identifier);
                     return JsonSerializer.Serialize(session, new JsonSerializerOptions());
                 }
                 catch (Exception ex)
