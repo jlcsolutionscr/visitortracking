@@ -18,5 +18,6 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess.domain
         public string PromotionDescription { get; set; }
         public string PromotionMessage { get; set; }
         public DateTime ExpiresAt { get; set; }
+        public int UtcTimeFactor { get; set; }
     }
 }

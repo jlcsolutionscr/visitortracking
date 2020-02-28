@@ -31,7 +31,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     AuthorizationEntry entry = new AuthorizationEntry
                     {
                         Id = strGuid,
-                        EmitedAt = DateTime.UtcNow.AddHours(-6)
+                        EmitedAt = DateTime.UtcNow
                     };
                     dbContext.AuthorizationEntryRepository.Add(entry);
                     dbContext.Commit();
@@ -42,6 +42,29 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 }
                 string encryptedToken = Utilities.EncryptString(strGuid);
                 return encryptedToken;
+            }
+        }
+
+        public void ValidateAccessCode(string token)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    string deencryptedToken = Utilities.DecryptString(token);
+                    AuthorizationEntry entry = dbContext.AuthorizationEntryRepository.Where(x => x.Id == deencryptedToken).FirstOrDefault();
+                    if (entry == null) throw new Exception("La sessión del usuario no es válida. Debe reiniciar su sesión.");
+                    if (entry.EmitedAt < DateTime.UtcNow.AddHours(-12))
+                    {
+                        dbContext.RemoveNotify(entry);
+                        dbContext.Commit();
+                        throw new Exception("La sessión del usuario se encuentra expirada. Debe reiniciar su sesión.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
             }
         }
 
@@ -69,35 +92,12 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 string strGuid = Guid.NewGuid().ToString();
                 try
                 {
-                    DateTime detMaxDate = DateTime.UtcNow.AddHours(-18);
+                    DateTime detMaxDate = DateTime.UtcNow;
                     var list = dbContext.AuthorizationEntryRepository.Where(x => x.EmitedAt < detMaxDate).ToList();
                     foreach(AuthorizationEntry entry in list)
                     {
                         dbContext.RemoveNotify(entry);
                         dbContext.Commit();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
-            }
-        }
-
-        public void ValidateAccessCode(string token)
-        {
-            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
-            {
-                try
-                {
-                    string deencryptedToken = Utilities.DecryptString(token);
-                    AuthorizationEntry entry = dbContext.AuthorizationEntryRepository.Where(x => x.Id == deencryptedToken).FirstOrDefault();
-                    if (entry == null) throw new Exception("La sessión del usuario no es válida. Debe reiniciar su sesión.");
-                    if (entry.EmitedAt < DateTime.UtcNow.AddHours(-18))
-                    {
-                        dbContext.RemoveNotify(entry);
-                        dbContext.Commit();
-                        throw new Exception("La sessión del usuario se encuentra expirada. Debe reiniciar su sesión.");
                     }
                 }
                 catch (Exception ex)
@@ -123,7 +123,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     {
                         company = dbContext.CompanyRepository.FirstOrDefault(x => x.Identifier == identifier);
                         if (company == null) throw new Exception("La identificación suministrada no pertenece a ninguna empresa registrada en el sistema. Por favor verifique la información suministrada.");
-                        if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La vigencia del plan de facturación ha expirado. Por favor, pongase en contacto con su proveedor de servicio.");
+                        if (company.ExpiresAt < DateTime.UtcNow.AddHours(company.UtcTimeFactor)) throw new Exception("La vigencia del plan de facturación ha expirado. Por favor, pongase en contacto con su proveedor de servicio.");
                         user = dbContext.UserRepository.FirstOrDefault(x => x.Username == username.ToUpper() && x.Identifier == identifier);
                     }
                     if (user == null) throw new Exception("Usuario no registrado en la empresa suministrada. Por favor verifique la información suministrada.");
@@ -276,6 +276,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 {
                     entity.Username = entity.Username.ToUpper();
                     if (entity.Username == "ADMIN" || entity.Username == "MOBILEAPP") throw new Exception("El código de usuario ingresado no está disponible");
+                    User existing = dbContext.UserRepository.AsNoTracking().FirstOrDefault(x => x.Identifier == entity.Identifier && x.Username == entity.Username);
+                    if (existing != null) throw new Exception("El código de usuario ya se encuentra registrado. No es posible agregar el registro.");
                     dbContext.UserRepository.Add(entity);
                     entity.RoleList.ForEach(role => {
                         RolePerUser rolePerUser = new RolePerUser();
@@ -495,6 +497,28 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
+        public List<IdDescList> GetActiveEmployeeList(int companyId)
+        {
+            List<IdDescList> results = new List<IdDescList>();
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    List<Employee> list = dbContext.EmployeeRepository.Where(x => x.CompanyId == companyId && x.Active).ToList();
+                    foreach(var employee in list)
+                    {
+                        IdDescList item = new IdDescList(employee.Id, employee.Name);
+                        results.Add(item);
+                    }
+                    return results;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
         public Employee GetEmployee(int id)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
@@ -517,7 +541,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             {
                 try
                 {
-                    int maxId = dbContext.EmployeeRepository.Where(x => x.CompanyId == entity.CompanyId).Max(x => x.Id);
+                    List<Employee> list = dbContext.EmployeeRepository.Where(x => x.CompanyId == entity.CompanyId).ToList();
+                    int maxId = 0;
+                    if (list.Count > 0) maxId = dbContext.EmployeeRepository.Where(x => x.CompanyId == entity.CompanyId).Max(x => x.Id);
                     entity.Id = maxId + 1;
                     dbContext.EmployeeRepository.Add(entity);
                     dbContext.Commit();
@@ -548,6 +574,105 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
+        public List<IdDescList> GetProductList(int companyId)
+        {
+            List<IdDescList> results = new List<IdDescList>();
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    List<Product> list = dbContext.ProductRepository.Where(x => x.CompanyId == companyId).ToList();
+                    foreach(var employee in list)
+                    {
+                        IdDescList item = new IdDescList(employee.Id, employee.Description);
+                        results.Add(item);
+                    }
+                    return results;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
+        public List<IdDescList> GetActiveProductList(int companyId)
+        {
+            List<IdDescList> results = new List<IdDescList>();
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    List<Product> list = dbContext.ProductRepository.Where(x => x.CompanyId == companyId && x.Active).ToList();
+                    foreach(var employee in list)
+                    {
+                        IdDescList item = new IdDescList(employee.Id, employee.Description);
+                        results.Add(item);
+                    }
+                    return results;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
+        public Product GetProduct(int id)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    Product entity = dbContext.ProductRepository.FirstOrDefault(x => x.Id == id);
+                    return entity;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
+        public string AddProduct(Product entity)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    List<Product> list = dbContext.ProductRepository.Where(x => x.CompanyId == entity.CompanyId).ToList();
+                    int maxId = 0;
+                    if (list.Count > 0) maxId = dbContext.ProductRepository.Where(x => x.CompanyId == entity.CompanyId).Max(x => x.Id);
+                    entity.Id = maxId + 1;
+                    dbContext.ProductRepository.Add(entity);
+                    dbContext.Commit();
+                    return entity.Id.ToString();
+                }
+                catch (Exception ex)
+                {
+                    dbContext.RollBack();
+                    throw ex;
+                }
+            }
+        }
+
+        public void UpdateProduct(Product entity)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    dbContext.ChangeNotify(entity);
+                    dbContext.Commit();
+                }
+                catch (Exception ex)
+                {
+                    dbContext.RollBack();
+                    throw ex;
+                }
+            }
+        }
+
         public Branch GetBranchByCode(string accessCode)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
@@ -558,7 +683,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
                     if (!branch.Active) throw new Exception("La sucursal se encuentra inactiva en el sistema. Consulte con su proveedor del servicio.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
-                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
+                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(company.UtcTimeFactor)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
                     return branch;
                 }
                 catch (Exception ex)
@@ -603,9 +728,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
                     if (!branch.Active) throw new Exception("La sucursal se encuentra inactiva en el sistema. Consulte con su proveedor del servicio.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
-                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
+                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(company.UtcTimeFactor)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
                     List<Customer> list = dbContext.CustomerRepository.Join(dbContext.RegistryRepository, x => x.Id, y => y.CustomerId, (x, y) => new { x, y })
-                        .Where(x => x.y.DeviceId == deviceId && x.y.CompanyId == company.Id)
+                        .Where(x => x.y.DeviceId == deviceId && x.y.CompanyId == company.Id && x.y.Status == StaticStatus.Active)
                         .Select(x => x.x).ToList();
                     foreach(var entry in list)
                     {
@@ -621,7 +746,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public void CustomerRegistry(string deviceId, string accessCode, int employeeId, string name, string identifier, string address, string mobileNumber, string email)
+        public void CustomerRegistry(string deviceId, string accessCode, int employeeId, int productId, int rating, string name, string identifier, string address, string mobileNumber, string email)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
@@ -631,7 +756,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
                     if (!branch.Active) throw new Exception("La sucursal se encuentra inactiva en el sistema. Consulte con su proveedor del servicio.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
-                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
+                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(company.UtcTimeFactor)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
                     Customer customer = dbContext.CustomerRepository.FirstOrDefault(x => x.Identifier == identifier);
                     Registry registry = null;
                     if (customer == null)
@@ -666,7 +791,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         registry.DeviceId = deviceId;
                         registry.CompanyId = branch.CompanyId;
                         registry.Customer = customer;
-                        registry.RegisterDate = DateTime.UtcNow.AddHours(-6);
+                        registry.RegisterDate = DateTime.UtcNow.AddHours(company.UtcTimeFactor);
                         registry.Status = StaticStatus.Pending;
                         registry.VisitCount = 1;
                         dbContext.RegistryRepository.Add(registry);
@@ -676,7 +801,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     activity.CompanyId = branch.CompanyId;
                     activity.BranchId = branch.Id;
                     activity.EmployeeId = employeeId;
-                    activity.VisitDate = DateTime.UtcNow.AddHours(-6);
+                    activity.ProductId = productId;
+                    activity.Rating = rating;
+                    activity.VisitDate = DateTime.UtcNow.AddHours(company.UtcTimeFactor);
                     activity.Applied = false;
                     dbContext.ActivityRepository.Add(activity);
                     dbContext.Commit();
@@ -709,7 +836,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public string TrackCustomerVisit(string deviceId, int customerId, int employeeId, string accessCode)
+        public string TrackCustomerVisit(string deviceId, string accessCode, int employeeId, int productId, int rating, int customerId)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
@@ -719,7 +846,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
                     if (!branch.Active) throw new Exception("La sucursal se encuentra inactiva en el sistema. Consulte con su proveedor del servicio.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
-                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(-6)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
+                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(company.UtcTimeFactor)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
                     Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.DeviceId == deviceId && x.CompanyId == branch.CompanyId && x.CustomerId == customerId);
                     if (registry == null) throw new Exception("El dispositivo no ha sido registrado. Por favor proceda con el registro.");
                     int visitNumber = registry.VisitCount + 1;
@@ -739,7 +866,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     activity.CompanyId = branch.CompanyId;
                     activity.BranchId = branch.Id;
                     activity.EmployeeId = employeeId;
-                    activity.VisitDate = DateTime.UtcNow.AddHours(-6);
+                    activity.ProductId = productId;
+                    activity.Rating = rating;
+                    activity.VisitDate = DateTime.UtcNow.AddHours(company.UtcTimeFactor);
                     activity.Applied = willApply;
                     dbContext.ActivityRepository.Add(activity);
                     dbContext.Commit();

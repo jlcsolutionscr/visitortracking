@@ -23,6 +23,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess
                 .HasKey(c => new { c.CompanyId, c.Id });
             modelBuilder.Entity<Employee>()
                 .HasKey(c => new { c.CompanyId, c.Id });
+            modelBuilder.Entity<Product>()
+                .HasKey(c => new { c.CompanyId, c.Id });
             modelBuilder.Entity<RolePerUser>()
                 .HasKey(c => new { c.RoleId, c.UserId });
         }
@@ -34,6 +36,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess
         public DbSet<Registry> RegistryRepository { get; set; }
         public DbSet<Activity> ActivityRepository { get; set; }
         public DbSet<User> UserRepository { get; set; }
+        public DbSet<Product> ProductRepository { get; set; }
         public DbSet<Role> RoleRepository { get; set; }
         public DbSet<RolePerUser> RolePerUserRepository { get; set; }
         public DbSet<Parameter> ParameterRepository { get; set; }

@@ -21,6 +21,14 @@ CREATE TABLE employee (
   FOREIGN KEY (CompanyId) REFERENCES company(Id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+CREATE TABLE product (
+  CompanyId INT(11) NOT NULL,
+  Id INT(11) NOT NULL,
+  Description VARCHAR(100) NOT NULL,
+  PRIMARY KEY (CompanyId, Id),
+  FOREIGN KEY (CompanyId) REFERENCES company(Id)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
 CREATE TABLE branch (
   CompanyId INT(11) NOT NULL,
   BranchId INT(11) NOT NULL,
@@ -37,6 +45,7 @@ CREATE TABLE customer (
   Id INT(11) NOT NULL AUTO_INCREMENT,
   Name VARCHAR(100) NOT NULL,
   Identifier VARCHAR(20) NOT NULL,
+  Birthday DATETIME NOT NULL,
   Address VARCHAR(200) NOT NULL,
   PhoneNumber VARCHAR(11) NOT NULL,
   MobileNumber VARCHAR(11) NOT NULL,
@@ -62,11 +71,15 @@ CREATE TABLE activity (
   CompanyId INT(11) NOT NULL,
   BranchId INT(11) NOT NULL,
   EmployeeId INT(11) NOT NULL,
+  ProductId INT(11) NOT NULL,
   VisitDate DATETIME NOT NULL,
+  Rating INT(11) NOT NULL,
   Applied INT(1) NOT NULL,
   PRIMARY KEY (Id),
   FOREIGN KEY (RegistryId) REFERENCES registry(Id),
-  FOREIGN KEY (CompanyId, BranchId) REFERENCES branch(CompanyId, Id)
+  FOREIGN KEY (CompanyId, BranchId) REFERENCES branch(CompanyId, Id),
+  FOREIGN KEY (CompanyId, EmployeeId) REFERENCES employee(CompanyId, Id),
+  FOREIGN KEY (CompanyId, ProductId) REFERENCES product(CompanyId, Id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE user (
