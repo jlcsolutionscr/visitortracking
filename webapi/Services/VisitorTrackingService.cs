@@ -746,7 +746,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public void CustomerRegistry(string deviceId, string accessCode, int employeeId, int productId, int rating, string name, string identifier, string address, string mobileNumber, string email)
+        public void CustomerRegistry(string deviceId, string accessCode, string name, string identifier, string birthday, string address, string mobileNumber, string email)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
@@ -757,32 +757,33 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     if (!branch.Active) throw new Exception("La sucursal se encuentra inactiva en el sistema. Consulte con su proveedor del servicio.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
                     if (company.ExpiresAt < DateTime.UtcNow.AddHours(company.UtcTimeFactor)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
+                    DateTime datBirthday = DateTime.ParseExact(birthday + " 00:00:01", strFormat, provider);
                     Customer customer = dbContext.CustomerRepository.FirstOrDefault(x => x.Identifier == identifier);
-                    Registry registry = null;
                     if (customer == null)
                     {
                         customer = new Customer();
                         customer.Name = name;
                         customer.Identifier = identifier;
+                        customer.Birthday = datBirthday;
                         customer.Address = address;
                         customer.MobileNumber = mobileNumber;
                         customer.Email = email;
+                        dbContext.CustomerRepository.Add(customer);
                     }
                     else
                     {
-                        Registry pendingRequest = dbContext.RegistryRepository.AsNoTracking().FirstOrDefault(x => x.CompanyId == company.Id && x.CustomerId == customer.Id && x.Status == StaticStatus.Pending);
-                        if (pendingRequest != null) throw new Exception("Existe una solicitud de inscripción pendiente. No es posible ingresar otra solicitud");
-                        registry = dbContext.RegistryRepository.FirstOrDefault(x => x.CompanyId == company.Id && x.CustomerId == customer.Id && x.Status != StaticStatus.Pending);
                         customer.Name = name;
+                        customer.Birthday = datBirthday;
                         customer.Address = address;
                         customer.MobileNumber = mobileNumber;
                         customer.Email = email;
                         dbContext.ChangeNotify(customer);
                     }
+                    Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.CompanyId == company.Id && x.CustomerId == customer.Id);
                     if (registry != null) {
+                        if (registry.Status == StaticStatus.Pending) throw new Exception("Existe una solicitud de inscripción pendiente. No es posible ingresar otra solicitud");
                         if (registry.DeviceId == deviceId) throw new Exception("La identificación suministrada ya se encuentra registrada mediante este dispositivo. No es posible ingresar otra solicitud");
                         registry.DeviceId = deviceId;
-                        registry.VisitCount += 1;
                         dbContext.ChangeNotify(registry);
                     }
                     else
@@ -793,19 +794,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         registry.Customer = customer;
                         registry.RegisterDate = DateTime.UtcNow.AddHours(company.UtcTimeFactor);
                         registry.Status = StaticStatus.Pending;
-                        registry.VisitCount = 1;
+                        registry.VisitCount = 0;
                         dbContext.RegistryRepository.Add(registry);
                     }
-                    Activity activity = new Activity();
-                    activity.Registry = registry;
-                    activity.CompanyId = branch.CompanyId;
-                    activity.BranchId = branch.Id;
-                    activity.EmployeeId = employeeId;
-                    activity.ServiceId = productId;
-                    activity.Rating = rating;
-                    activity.VisitDate = DateTime.UtcNow.AddHours(company.UtcTimeFactor);
-                    activity.Applied = false;
-                    dbContext.ActivityRepository.Add(activity);
                     dbContext.Commit();
                 }
                 catch (Exception ex)
@@ -896,11 +887,11 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         .Join(dbContext.ActivityRepository, x => x.y.Id, y => y.RegistryId, (x, y) => new { x, y })
                         .Join(dbContext.ServiceRepository, x => x.y.ServiceId, y => y.Id, (x, y) => new { x, y })
                         .Where(x => x.y.CompanyId == companyId && x.x.y.BranchId == branchId && x.x.y.VisitDate >= datStartDate && x.x.y.VisitDate <= datEndDate)
-                        .Select(x => new { Id = x.y.Id, Name = x.x.x.x.Name, x.x.y.VisitDate, Type = x.y.Description }).ToList();
+                        .Select(x => new { Id = x.x.y.Id, Name = x.x.x.x.Name, x.x.y.VisitDate, Service = x.y.Description }).ToList();
                         
                     foreach(var entry in list)
                     {
-                        ActivityList item = new ActivityList(entry.Id, entry.Name, entry.VisitDate.ToString(strFormat), entry.Type);
+                        ActivityList item = new ActivityList(entry.Id, entry.Name, entry.VisitDate.ToString(strFormat), entry.Service);
                         results.Add(item);
                     }
                     return results;
