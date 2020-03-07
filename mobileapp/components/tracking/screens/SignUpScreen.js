@@ -6,9 +6,9 @@ import { withNavigationFocus } from 'react-navigation'
 import { registerCustomer } from '../../../store/session/actions'
 
 import { ScrollView, View, Text } from 'react-native'
-import Dropdown from '../../custom/Dropdown'
 import Button from '../../custom/Button'
 import TextField from '../../custom/TextField'
+import DatePicker from '../custom/DatePicker'
 
 import styles from '../../styles'
 
@@ -16,9 +16,9 @@ export class SignUpScreen extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedEmployeeId: this.props.employeeList.length > 0 ? this.props.employeeList[0].Id : 0,
       identifier: '',
       name: '',
+      birthday: '01/01/1900',
       address: '',
       mobile: '',
       email: ''
@@ -28,9 +28,9 @@ export class SignUpScreen extends Component {
   componentDidUpdate (nextProps) {
     if (nextProps.isFocused !== this.props.isFocused) {
       this.setState({
-        selectedEmployeeId: this.props.employeeList.length > 0 ? this.props.employeeList[0].Id : 0,
         identifier: '',
         name: '',
+        birthday: '01/01/1900',
         address: '',
         mobile: '',
         email: ''
@@ -40,21 +40,12 @@ export class SignUpScreen extends Component {
 
   render () {
     const { error } = this.props
-    const { selectedEmployeeId, identifier, name, address, mobile, email } = this.state
-    let buttonEnabled = selectedEmployeeId > 0 && identifier !== '' && name !== '' && address !== '' && mobile !== '' && email !== ''
-    const employeeList = this.props.employeeList.map(item => {
-      return { value: item.Id, label: item.Description }
-    })
+    const { identifier, name, birthday, address, mobile, email } = this.state
+    let buttonEnabled = identifier !== '' && name !== '' && birthday !== '' && address !== '' && mobile !== '' && email !== ''
     return (<View key='1' style={styles.subContainer}>
       <View style={styles.header}>
-        <Text style={styles.title}>Registro de clientes</Text>
+        <Text style={styles.title}>Registre su información</Text>
       </View>
-      <Dropdown
-        label='Me atendió'
-        selectedValue={selectedEmployeeId}
-        items={employeeList}
-        onValueChange={(itemValue, itemPosition) => this.setState({selectedEmployeeId: itemValue})}
-      />
       <ScrollView keyboardShouldPersistTaps='handled'>
         <TextField
           label='Identificación'
@@ -69,6 +60,11 @@ export class SignUpScreen extends Component {
           placeholder='Nombre del cliente'
           value={name}
           onChangeText={(name) => this.setState({name})}
+        />
+        <DatePicker
+          label='Fecha de nacimiento'
+          value={birthday}
+          onChange={(birthday) => this.setState({birthday})}
         />
         <TextField
           label='Dirección'
@@ -107,21 +103,21 @@ export class SignUpScreen extends Component {
   }
 
   async handleOnPress () {
-    const { selectedEmployeeId, identifier, name, address, mobile, email } = this.state
+    const { identifier, name, birthday, address, mobile, email } = this.state
     const customer = {
       Identifier: identifier,
       Name: name,
+      Birthday: birthday,
       Address: address,
       MobileNumber: mobile,
       Email: email
     }
-    this.props.registerCustomer(selectedEmployeeId, customer)
+    this.props.registerCustomer(customer)
   }
 }
 
 const mapStateToProps = (state) => {
   return {
-    employeeList: state.session.employeeList,
     error: state.session.error
   }
 }

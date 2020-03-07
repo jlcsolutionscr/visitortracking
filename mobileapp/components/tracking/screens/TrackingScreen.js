@@ -23,18 +23,22 @@ class TrackingScreen extends Component {
     super(props)
     this.state = {
       selectedCustomerId: this.props.customerList.length > 0 ? this.props.customerList[0].Id : 0,
-      selectedEmployeeId: this.props.employeeList.length > 0 ? this.props.employeeList[0].Id : 0
+      selectedEmployeeId: this.props.employeeList.length > 0 ? this.props.employeeList[0].Id : 0,
+      selectedServiceId: this.props.serviceList.length > 0 ? this.props.serviceList[0].Id : 0
     }
   }
 
   render () {
     const { branch, error } = this.props
-    const { selectedCustomerId, selectedEmployeeId } = this.state
+    const { selectedCustomerId, selectedEmployeeId, selectedServiceId } = this.state
     const customer = this.props.customerList.find(item => item.Id === selectedCustomerId)
     const customerList = this.props.customerList.map(item => {
       return { value: item.Id, label: item.Description }
     })
     const employeeList = this.props.employeeList.map(item => {
+      return { value: item.Id, label: item.Description }
+    })
+    const serviceList = this.props.serviceList.map(item => {
       return { value: item.Id, label: item.Description }
     })
     const customerName = customer ? customer.Description : ''
@@ -55,6 +59,12 @@ class TrackingScreen extends Component {
         selectedValue={selectedEmployeeId}
         items={employeeList}
         onValueChange={(itemValue, itemPosition) => this.setState({selectedEmployeeId: itemValue})}
+      />
+      <Dropdown
+        label='Servicio brindado'
+        selectedValue={selectedServiceId}
+        items={serviceList}
+        onValueChange={(itemValue, itemPosition) => this.setState({selectedServiceId: itemValue})}
       />
       <Text style={styles.specialText}>Preciona en ENVIAR para registrar tu visita</Text>
       <Button

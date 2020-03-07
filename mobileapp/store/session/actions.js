@@ -127,7 +127,7 @@ export function registerCustomer (employeeId, customer) {
     try {
       await customerRegistration(serviceURL, deviceId, branch.AccessCode, employeeId, customer, token)
       dispatch(setBranch(null))
-      dispatch(setModalMessage('Tu solicitud de registro ha sido enviada. Una vez aprobada podrás seguir registrando tus visitas'))
+      dispatch(setModalMessage('Su solicitud de registro ha sido enviada. Una vez aprobada podrás iniciar el registro de sus visitas'))
       dispatch(stopLoader())
     } catch (error) {
       dispatch(stopLoader())

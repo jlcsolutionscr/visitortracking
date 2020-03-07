@@ -52,9 +52,9 @@ export async function getRegisteredCustomerList(serviceURL, deviceId, accessCode
   }
 }
 
-export async function customerRegistration(serviceURL, deviceId, accessCode, employeeId, customer, token) {
+export async function customerRegistration(serviceURL, deviceId, accessCode, customer, token) {
   try {
-    const data = '{"MethodName": "CustomerRegistry", "Parameters": {"DeviceId": "' + deviceId + '", "AccessCode": "' + accessCode + '", "EmployeeId": ' + employeeId + ', "Name": "' + customer.Name + '", "Identifier": "' + customer.Identifier + '", "Address": "' + customer.Address + '", "MobileNumber": "' + customer.MobileNumber + '", "Email": "' + customer.Email + '"}}'
+    const data = '{"MethodName": "CustomerRegistry", "Parameters": {"DeviceId": "' + deviceId + '", "AccessCode": "' + accessCode + '", "Name": "' + customer.Name + '", "Identifier": "' + customer.Identifier + '", "Birthday": "' + + ', "Address": "' + customer.Address + '", "MobileNumber": "' + customer.MobileNumber + '", "Email": "' + customer.Email + '"}}'
     await post(serviceURL + '/messagenoresponse', token, data)
   } catch (e) {
     throw e.message
