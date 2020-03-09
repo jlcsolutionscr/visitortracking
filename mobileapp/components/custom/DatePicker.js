@@ -27,13 +27,13 @@ class DatePicker extends Component {
           disabled={this.props.disabled ? this.props.disabled : false}
           title={this.props.value}
           onPress={() => this.setState({show: true})}/>
-        { this.state.show && <DateTimePicker
-          mode='date'
+        {this.state.show && <DateTimePicker
+          mode='default'
+          display='default'
           value={currentDate}
-          is24Hour={true}
-          display="default"
-          onChange={this.handleOnChange} />
-        }
+          minimumDate={new Date(1950, 0, 1)}
+          maximumDate={new Date()}
+          onChange={this.handleOnChange} />}
       </View>
     )
   }

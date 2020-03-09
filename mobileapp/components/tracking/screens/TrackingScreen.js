@@ -24,7 +24,8 @@ class TrackingScreen extends Component {
     this.state = {
       selectedCustomerId: this.props.customerList.length > 0 ? this.props.customerList[0].Id : 0,
       selectedEmployeeId: this.props.employeeList.length > 0 ? this.props.employeeList[0].Id : 0,
-      selectedServiceId: this.props.serviceList.length > 0 ? this.props.serviceList[0].Id : 0
+      selectedServiceId: this.props.serviceList.length > 0 ? this.props.serviceList[0].Id : 0,
+      rating: 5
     }
   }
 
@@ -86,8 +87,8 @@ class TrackingScreen extends Component {
   }
 
   handleOnPress() {
-    const { selectedCustomerId, selectedEmployeeId } = this.state
-    this.props.trackVisitorActivity(selectedCustomerId, selectedEmployeeId)
+    const { selectedEmployeeId, selectedServiceId, rating, selectedCustomerId } = this.state
+    this.props.trackVisitorActivity(selectedEmployeeId, selectedServiceId, rating, selectedCustomerId)
   }
 }
 
@@ -96,6 +97,7 @@ const mapStateToProps = (state) => {
     branch: state.session.branch,
     employeeList: state.session.employeeList,
     customerList: state.session.customerList,
+    serviceList: state.session.serviceList,
     error: state.session.error
   }
 }

@@ -5,6 +5,7 @@ import {
   SET_SESSION_STATUS,
   SET_BRANCH,
   SET_EMPLOYEE_LIST,
+  SET_SERVICE_LIST,
   SET_CUSTOMER_LIST,
   SET_ERROR
 } from './types'
@@ -13,7 +14,8 @@ import {
   getLatestAppVersion,
   userLogin,
   getBranchInfo,
-  getEmployeeList,
+  GetActiveEmployeeList,
+  GetActiveServiceList,
   getRegisteredCustomerList,
   customerRegistration,
   visitorActivityTracking
@@ -51,6 +53,13 @@ export const setEmployeeList = (list) => {
   }
 }
 
+export const setServiceList = (list) => {
+  return {
+    type: SET_SERVICE_LIST,
+    payload: { list }
+  }
+}
+
 export const setCustomerList = (list) => {
   return {
     type: SET_CUSTOMER_LIST,
@@ -83,6 +92,7 @@ export function validateSessionState () {
           dispatch(setSessionToken(session.Token))
         }
         dispatch(setSessionStatus(deviceId, 'ready'))
+        dispatch(validateCodeInfo('6b689301-c594-403d-9185-bb339d254d3c'))
       }
       dispatch(stopLoader())
     } catch (error) {
@@ -104,9 +114,11 @@ export function validateCodeInfo (accessCode) {
       if (!branch) {
         dispatch(setError('No se encontró información asociada.'))
       } else {
-        const employeeList = await getEmployeeList(serviceURL, branch.CompanyId, token)
-        dispatch(setEmployeeList(employeeList))
         dispatch(setBranch(branch))
+        const employeeList = await GetActiveEmployeeList(serviceURL, branch.CompanyId, token)
+        dispatch(setEmployeeList(employeeList))
+        const serviceList = await GetActiveServiceList(serviceURL, branch.CompanyId, token)
+        dispatch(setServiceList(serviceList))
         const customerList = await getRegisteredCustomerList(serviceURL, deviceId, accessCode, token)
         dispatch(setCustomerList(customerList))
       }
@@ -118,14 +130,14 @@ export function validateCodeInfo (accessCode) {
   }
 }
 
-export function registerCustomer (employeeId, customer) {
+export function registerCustomer (customer) {
   return async (dispatch, getState) => {
     const serviceURL = Config.SERVER_URL
     const { deviceId, branch, token } = getState().session
     dispatch(startLoader())
     dispatch(setError(''))
     try {
-      await customerRegistration(serviceURL, deviceId, branch.AccessCode, employeeId, customer, token)
+      await customerRegistration(serviceURL, deviceId, branch.AccessCode, customer, token)
       dispatch(setBranch(null))
       dispatch(setModalMessage('Su solicitud de registro ha sido enviada. Una vez aprobada podrás iniciar el registro de sus visitas'))
       dispatch(stopLoader())
@@ -136,14 +148,14 @@ export function registerCustomer (employeeId, customer) {
   }
 }
 
-export function trackVisitorActivity (customerId, employeeId) {
+export function trackVisitorActivity (employeeId, serviceId, rating, customerId) {
   return async (dispatch, getState) => {
     const serviceURL = Config.SERVER_URL
     const { deviceId, branch, token } = getState().session
     dispatch(startLoader())
     dispatch(setError(''))
     try {
-      await visitorActivityTracking(serviceURL, deviceId, customerId, branch.AccessCode, employeeId, token)
+      await visitorActivityTracking(serviceURL, deviceId, branch.AccessCode, employeeId, serviceId, rating, customerId, token)
       dispatch(setBranch(null))
       dispatch(setModalMessage('Tu visita ha sido registrada satisfactoriamente'))
       dispatch(stopLoader())

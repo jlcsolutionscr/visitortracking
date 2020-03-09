@@ -30,9 +30,20 @@ export async function getBranchInfo(serviceURL, accessCode, token) {
   }
 }
 
-export async function getEmployeeList(serviceURL, companyId, token) {
+export async function GetActiveEmployeeList(serviceURL, companyId, token) {
   try {
-    const data = '{"MethodName": "GetEmployeeList", "Parameters": {"CompanyId": ' + companyId + '}}'
+    const data = '{"MethodName": "GetActiveEmployeeList", "Parameters": {"CompanyId": ' + companyId + '}}'
+    const response = await postWithResponse(serviceURL + '/messagewithresponse', token, data)
+    if (response === null) return []
+    return response
+  } catch (e) {
+    throw e.message
+  }
+}
+
+export async function GetActiveServiceList(serviceURL, companyId, token) {
+  try {
+    const data = '{"MethodName": "GetActiveServiceList", "Parameters": {"CompanyId": ' + companyId + '}}'
     const response = await postWithResponse(serviceURL + '/messagewithresponse', token, data)
     if (response === null) return []
     return response
@@ -54,17 +65,18 @@ export async function getRegisteredCustomerList(serviceURL, deviceId, accessCode
 
 export async function customerRegistration(serviceURL, deviceId, accessCode, customer, token) {
   try {
-    const data = '{"MethodName": "CustomerRegistry", "Parameters": {"DeviceId": "' + deviceId + '", "AccessCode": "' + accessCode + '", "Name": "' + customer.Name + '", "Identifier": "' + customer.Identifier + '", "Birthday": "' + + ', "Address": "' + customer.Address + '", "MobileNumber": "' + customer.MobileNumber + '", "Email": "' + customer.Email + '"}}'
+    const data = '{"MethodName": "CustomerRegistry", "Parameters": {"DeviceId": "' + deviceId + '", "AccessCode": "' + accessCode + '", "Name": "' + customer.Name + '", "Identifier": "' + customer.Identifier + '", "Birthday": "' + customer.Birthday + '", "Address": "' + customer.Address + '", "MobileNumber": "' + customer.MobileNumber + '", "Email": "' + customer.Email + '"}}'
     await post(serviceURL + '/messagenoresponse', token, data)
   } catch (e) {
     throw e.message
   }
 }
 
-export async function visitorActivityTracking(serviceURL, deviceId, customerId, accessCode, employeeId, token) {
+export async function visitorActivityTracking(serviceURL, deviceId, accessCode, employeeId, serviceId, rating, customerId,  token) {
   try {
-    const data = '{"MethodName": "TrackCustomerVisit", "Parameters": {"DeviceId": "' + deviceId + '", "CustomerId": ' + customerId + ', "AccessCode": "' + accessCode + '", "EmployeeId": ' + employeeId + '}}'
-    await post(serviceURL + '/messagenoresponse', token, data)
+    const data = '{"MethodName": "TrackCustomerVisit", "Parameters": {"DeviceId": "' + deviceId + '", "AccessCode": "' + accessCode + '", "EmployeeId": ' + employeeId + ', "ServiceId": ' + serviceId + ', "Rating": ' + rating + ', "CustomerId": ' + customerId + '}}'
+    const response = await postWithResponse(serviceURL + '/messagewithresponse', token, data)
+    return response
   } catch (e) {
     throw e.message
   }

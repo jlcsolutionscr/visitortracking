@@ -14,6 +14,7 @@ export const INITIAL_STATE = {
     branch: null,
     employeeList: [],
     customerList: [],
+    serviceList: [],
     error: ''
   }
 }

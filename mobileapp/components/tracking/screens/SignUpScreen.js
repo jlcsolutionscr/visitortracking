@@ -8,7 +8,7 @@ import { registerCustomer } from '../../../store/session/actions'
 import { ScrollView, View, Text } from 'react-native'
 import Button from '../../custom/Button'
 import TextField from '../../custom/TextField'
-import DatePicker from '../custom/DatePicker'
+import DatePicker from '../../custom/DatePicker'
 
 import styles from '../../styles'
 
@@ -18,7 +18,7 @@ export class SignUpScreen extends Component {
     this.state = {
       identifier: '',
       name: '',
-      birthday: '01/01/1900',
+      birthday: '09/02/1981',
       address: '',
       mobile: '',
       email: ''
@@ -30,7 +30,7 @@ export class SignUpScreen extends Component {
       this.setState({
         identifier: '',
         name: '',
-        birthday: '01/01/1900',
+        birthday: '09/02/1981',
         address: '',
         mobile: '',
         email: ''
