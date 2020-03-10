@@ -30,7 +30,7 @@ const Dropdown = (props) => {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
-    paddingBottom: 5
+    paddingBottom: 1
   },
   label: {
     fontFamily: 'TitilliumWeb-Regular',

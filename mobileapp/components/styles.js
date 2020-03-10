@@ -23,14 +23,14 @@ export default styles = StyleSheet.create({
     fontSize: (16 * rem)
   },
   header: {
-    height: 90 * remY,
+    height: 50 * remY,
     backgroundColor: '#FAFAFA',
     justifyContent: 'center',
     alignItems: 'center'
   },
   title: {
     fontFamily: 'TitilliumWeb-Bold',
-    fontSize: (22 * rem),
+    fontSize: (30 * rem),
     color: '#004F6C'
   },
   content: {
@@ -43,15 +43,15 @@ export default styles = StyleSheet.create({
   },
   contentText: {
     fontFamily: 'TitilliumWeb-Light',
-    fontSize: (18 * rem),
+    fontSize: (20 * rem),
     textAlign: 'center'
   },
   specialText: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 10,
+    marginBottom: 10,
     color: 'blue',
-    fontFamily: 'TitilliumWeb-Regular',
-    fontSize: (20 * rem),
+    fontFamily: 'TitilliumWeb-Bold',
+    fontSize: (22 * rem),
     textAlign: 'center'
   },
   errorText: {

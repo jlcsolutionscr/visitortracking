@@ -1,7 +1,6 @@
 import React from 'react'
 import { Dimensions, StyleSheet, View, TouchableOpacity, Text } from 'react-native'
 
-
 const { width, height } = Dimensions.get('window')
 const rem = width / 411.42857142857144
 const remY = height / 683.4285714285714
@@ -38,8 +37,8 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     padding: 10,
-    marginLeft: 20,
-    marginRight: 20
+    marginLeft: 25,
+    marginRight: 25
   },
   button: {
     justifyContent: 'center',
