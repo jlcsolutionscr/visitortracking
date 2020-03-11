@@ -24,7 +24,6 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
         private int userId;
         private int employeeId;
         private int serviceId;
-        private int rating;
         private int customerId;
         private string deviceId;
         private string accessCode;
@@ -236,9 +235,10 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                             accessCode = message.Parameters.FirstOrDefault(x => x.Key == "AccessCode").Value.ToString();
                             employeeId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "EmployeeId").Value.ToString());
                             serviceId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "ServiceId").Value.ToString());
-                            rating = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "Rating").Value.ToString());
+                            int rating = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "Rating").Value.ToString());
+                            string comment = message.Parameters.FirstOrDefault(x => x.Key == "Comment").Value.ToString();
                             customerId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CustomerId").Value.ToString());
-                            string promotionMessage = service.TrackCustomerVisit(deviceId, accessCode, employeeId, serviceId, rating, customerId);
+                            string promotionMessage = service.TrackCustomerVisit(deviceId, accessCode, employeeId, serviceId, rating, comment, customerId);
                             response = JsonSerializer.Serialize(promotionMessage, new JsonSerializerOptions());
                             break;
                         default:

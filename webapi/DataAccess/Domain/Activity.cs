@@ -16,6 +16,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess.domain
         public int EmployeeId { get; set; }
         public int ServiceId { get; set; }
         public int Rating { get; set; }
+        public string Comment { get; set; }
         public DateTime VisitDate { get; set; }
         public bool Applied { get; set; }
 

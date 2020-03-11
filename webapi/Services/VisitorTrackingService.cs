@@ -211,6 +211,14 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     dbContext.ChangeNotify(entity);
+                    if (entity.PromotionAt == 0) {
+                        List<Registry> list = dbContext.RegistryRepository.Where(x => x.CompanyId == entity.Id).ToList();
+                        foreach(var entry in list)
+                        {
+                            entry.VisitCount = 0;
+                            dbContext.ChangeNotify(entry);
+                        }
+                    }
                     dbContext.Commit();
                 }
                 catch (Exception ex)
@@ -827,7 +835,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public string TrackCustomerVisit(string deviceId, string accessCode, int employeeId, int productId, int rating, int customerId)
+        public string TrackCustomerVisit(string deviceId, string accessCode, int employeeId, int productId, int rating, string comment, int customerId)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
@@ -840,16 +848,19 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     if (company.ExpiresAt < DateTime.UtcNow.AddHours(company.UtcTimeFactor)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
                     Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.DeviceId == deviceId && x.CompanyId == branch.CompanyId && x.CustomerId == customerId);
                     if (registry == null) throw new Exception("El dispositivo no ha sido registrado. Por favor proceda con el registro.");
-                    int visitNumber = registry.VisitCount + 1;
+                    int visitNumber = 0;
                     bool willApply = false;
-                    if (visitNumber == company.PromotionAt)
-                    {
-                        registry.VisitCount = 0;
-                        willApply = true;
-                    }
-                    else
-                    {
-                        registry.VisitCount = visitNumber;
+                    if (company.PromotionAt > 0) {
+                        visitNumber = registry.VisitCount + 1;
+                        if (visitNumber >= company.PromotionAt)
+                        {
+                            registry.VisitCount = 0;
+                            willApply = true;
+                        }
+                        else
+                        {
+                            registry.VisitCount = visitNumber;
+                        }
                     }
                     dbContext.ChangeNotify(registry);
                     Activity activity = new Activity();
@@ -859,6 +870,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     activity.EmployeeId = employeeId;
                     activity.ServiceId = productId;
                     activity.Rating = rating;
+                    activity.Comment = comment;
                     activity.VisitDate = DateTime.UtcNow.AddHours(company.UtcTimeFactor);
                     activity.Applied = willApply;
                     dbContext.ActivityRepository.Add(activity);

@@ -74,6 +74,7 @@ CREATE TABLE activity (
   ProductId INT(11) NOT NULL,
   VisitDate DATETIME NOT NULL,
   Rating INT(11) NOT NULL,
+  Comment VARCHAR(200) DEFAULT NULL,
   Applied INT(1) NOT NULL,
   PRIMARY KEY (Id),
   FOREIGN KEY (RegistryId) REFERENCES registry(Id),
