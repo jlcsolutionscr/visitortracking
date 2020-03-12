@@ -5,6 +5,7 @@ import {
   SET_EMPLOYEE_LIST,
   SET_SERVICE_LIST,
   SET_CUSTOMER_LIST,
+  SET_REWARD_MESSAGE,
   SET_ERROR
 } from './types'
 
@@ -22,6 +23,8 @@ export const configReducer = (state = {}, { type, payload }) => {
       return { ...state, serviceList: payload.list }
     case SET_CUSTOMER_LIST:
       return { ...state, customerList: payload.list }
+    case SET_REWARD_MESSAGE:
+      return { ...state, rewardMessage: payload.message }
     case SET_ERROR:
       return { ...state, error: payload.error }
     default:

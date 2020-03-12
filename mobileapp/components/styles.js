@@ -31,7 +31,7 @@ export default styles = StyleSheet.create({
   title: {
     fontFamily: 'TitilliumWeb-Bold',
     fontSize: (30 * rem),
-    color: '#004F6C'
+    color: '#DD2600'
   },
   content: {
     backgroundColor: '#FAFAFA',
@@ -49,7 +49,7 @@ export default styles = StyleSheet.create({
   specialText: {
     marginTop: 10,
     marginBottom: 10,
-    color: 'blue',
+    color: '#48479C',
     fontFamily: 'TitilliumWeb-Bold',
     fontSize: (22 * rem),
     textAlign: 'center'
@@ -59,5 +59,8 @@ export default styles = StyleSheet.create({
     fontSize: (18 * rem),
     color: 'red',
     textAlign: 'center'
+  },
+  rewardContainer: {
+
   }
 })

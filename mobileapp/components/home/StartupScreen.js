@@ -31,7 +31,7 @@ class StartupScreen extends Component {
         <View style={styles.header}>
           <Text style={styles.title}>REGISTRO DE VISITAS</Text>
         </View>
-        <Text style={styles.specialText}>Precione el botón para continuar</Text>
+        <Text style={styles.specialText}>Presione el botón para continuar</Text>
         <Button
           title="Escanear"
           titleUpperCase

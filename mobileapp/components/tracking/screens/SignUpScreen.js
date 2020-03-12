@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { withNavigationFocus } from 'react-navigation'
 
-import { registerCustomer } from '../../../store/session/actions'
+import { registerCustomer, setBranch } from '../../../store/session/actions'
 
 import { ScrollView, View, Text } from 'react-native'
 import Button from '../../custom/Button'
@@ -18,7 +18,7 @@ export class SignUpScreen extends Component {
     this.state = {
       identifier: '',
       name: '',
-      birthday: '09/02/1981',
+      birthday: '01/01/2000',
       address: '',
       mobile: '',
       email: ''
@@ -30,7 +30,7 @@ export class SignUpScreen extends Component {
       this.setState({
         identifier: '',
         name: '',
-        birthday: '09/02/1981',
+        birthday: '01/01/2000',
         address: '',
         mobile: '',
         email: ''
@@ -46,7 +46,7 @@ export class SignUpScreen extends Component {
       <View style={styles.header}>
         <Text style={styles.title}>Registre su información</Text>
       </View>
-      <ScrollView keyboardShouldPersistTaps='handled'>
+      <ScrollView keyboardShouldPersistTaps='handled' keyboardDismissMode='on-drag'>
         <TextField
           label='Identificación'
           placeholder='999999999999'
@@ -92,6 +92,12 @@ export class SignUpScreen extends Component {
           containerStyle={{marginTop: 20}} 
           onPress={() => this.handleOnPress()}
         />
+        <Button
+          title="Regresar"
+          titleUpperCase
+          disabled={!buttonEnabled}
+          onPress={() => this.props.setBranch(null)}
+        />
         {error !== '' && <Text style={styles.errorText}>{error}</Text>}
       </ScrollView>
     </View>)
@@ -124,7 +130,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return bindActionCreators({
-    registerCustomer
+    registerCustomer,
+    setBranch
   }, dispatch)
 }
 

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { validateSessionState } from '../store/session/actions'
+import { validateSessionState, setRewardMessage, setBranch } from '../store/session/actions'
 import { setModalMessage } from '../store/ui/actions'
 
 import { StatusBar, View, Text, BackHandler } from 'react-native'
@@ -12,6 +12,7 @@ import SplashScreen from './custom/SplashScreen'
 import OutdatedScreen from './outdated/OutdatedScreen'
 import Loader from './custom/Loader'
 import StartupScreen from './home/StartupScreen'
+import RewardScreen from './tracking/RewardScreen'
 import LoginNavigator from './tracking/LoginNavigator'
 
 import styles from './styles'
@@ -36,8 +37,13 @@ class MainApp extends Component {
     BackHandler.exitApp()
   }
 
+  handleClosePress () {
+    this.props.setRewardMessage('')
+    this.props.setBranch(null)
+  }
+
   render() {
-    const { sessionStatus, loaderVisible, branch, message, error } = this.props
+    const { rewardMessage, sessionStatus, loaderVisible, branch, message, error } = this.props
     const { splashScreenDone } = this.state
     const rootComponent = (
       !splashScreenDone || sessionStatus === 'loading'
@@ -46,7 +52,9 @@ class MainApp extends Component {
           ? <OutdatedScreen messageId={1} handleBackPress={this.handleBackPress} />
           : branch === null
             ? <StartupScreen />
-            : <LoginNavigator />
+            : rewardMessage === ''
+              ? <LoginNavigator />
+              : <RewardScreen handleClosePress={this.handleClosePress.bind(this)} branch={branch} rewardMessage={rewardMessage} />
     )
     const visibility = splashScreenDone && loaderVisible
     const modalVisible = error !== '' || message !== ''
@@ -100,6 +108,7 @@ const mapStateToProps = (state) => {
     sessionStatus: state.session.sessionStatus,
     loaderVisible: state.ui.loaderVisible,
     branch: state.session.branch,
+    rewardMessage: state.session.rewardMessage,
     message: state.ui.message,
     error: state.ui.error
   }
@@ -108,7 +117,9 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return bindActionCreators({
     validateSessionState,
-    setModalMessage
+    setModalMessage,
+    setRewardMessage,
+    setBranch
   }, dispatch)
 }
 

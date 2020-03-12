@@ -12,7 +12,7 @@ export async function getLatestAppVersion(serviceURL) {
 
 export async function userLogin(serviceURL) {
   try {
-    const endpoint = serviceURL + '/userlogin?username=MOBILEAPP&password=/SOHlDytfCDqqGitmLZJgw==&identifier=1'
+    const endpoint = serviceURL + '/userlogin?username=MOBILEAPP&password=hUf9Ag+Ljkh7SOb2gRqThg==&identifier=1'
     const response = await getWithResponse(endpoint)
     return response
   } catch (e) {
@@ -72,9 +72,9 @@ export async function customerRegistration(serviceURL, deviceId, accessCode, cus
   }
 }
 
-export async function visitorActivityTracking(serviceURL, deviceId, accessCode, employeeId, serviceId, rating, customerId,  token) {
+export async function visitorActivityTracking(serviceURL, deviceId, accessCode, employeeId, serviceId, rating, comment, customerId,  token) {
   try {
-    const data = '{"MethodName": "TrackCustomerVisit", "Parameters": {"DeviceId": "' + deviceId + '", "AccessCode": "' + accessCode + '", "EmployeeId": ' + employeeId + ', "ServiceId": ' + serviceId + ', "Rating": ' + rating + ', "CustomerId": ' + customerId + '}}'
+    const data = '{"MethodName": "TrackCustomerVisit", "Parameters": {"DeviceId": "' + deviceId + '", "AccessCode": "' + accessCode + '", "EmployeeId": ' + employeeId + ', "ServiceId": ' + serviceId + ', "Rating": ' + rating + ', "Comment": "' + comment + '", "CustomerId": ' + customerId + '}}'
     const response = await postWithResponse(serviceURL + '/messagewithresponse', token, data)
     return response
   } catch (e) {

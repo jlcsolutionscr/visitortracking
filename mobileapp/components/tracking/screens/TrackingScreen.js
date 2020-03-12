@@ -11,9 +11,10 @@ import {
   trackVisitorActivity
 } from '../../../store/session/actions'
 
-import { View, Text } from 'react-native'
+import { ScrollView, View, Text } from 'react-native'
 
 import Dropdown from '../../custom/Dropdown'
+import TextField from '../../custom/TextField'
 import Button from '../../custom/Button'
 import RatingBar from '../../custom/RatingBar'
 
@@ -26,13 +27,14 @@ class TrackingScreen extends Component {
       selectedCustomerId: this.props.customerList.length > 0 ? this.props.customerList[0].Id : 0,
       selectedEmployeeId: this.props.employeeList.length > 0 ? this.props.employeeList[0].Id : 0,
       selectedServiceId: this.props.serviceList.length > 0 ? this.props.serviceList[0].Id : 0,
-      rating: 0
+      rating: 0,
+      comment: ''
     }
   }
 
   render () {
     const { branch, error } = this.props
-    const { selectedCustomerId, selectedEmployeeId, selectedServiceId, rating } = this.state
+    const { selectedCustomerId, selectedEmployeeId, selectedServiceId, rating, comment } = this.state
     const customer = this.props.customerList.find(item => item.Id === selectedCustomerId)
     const customerList = this.props.customerList.map(item => {
       return { value: item.Id, label: item.Description }
@@ -49,52 +51,59 @@ class TrackingScreen extends Component {
       <View style={styles.header}>
         <Text style={styles.title}>{branch.Description}</Text>
       </View>
-      {customerList.length > 1 &&<Dropdown
-        label='Gracias por visitarnos'
-        selectedValue={selectedCustomerId}
-        items={customerList}
-        onValueChange={(itemValue, itemPosition) => this.setState({selectedCustomerId: itemValue})}
-      />}
-      {customerList.length === 1 && <Text style={styles.specialText}>{'Bienvenido ' + customerName}</Text>}
-      <Dropdown
-        label='Me atendió'
-        selectedValue={selectedEmployeeId}
-        items={employeeList}
-        onValueChange={(itemValue, itemPosition) => this.setState({selectedEmployeeId: itemValue})}
-      />
-      <Dropdown
-        label='Servicio brindado'
-        selectedValue={selectedServiceId}
-        items={serviceList}
-        onValueChange={(itemValue, itemPosition) => this.setState({selectedServiceId: itemValue})}
-      />
-      <RatingBar
-        label='Califiquenos'
-        maxRating={5}
-        rating={rating}
-        onPress={(value) => this.setState({rating: value})}
-      />
-      <Text style={styles.contentText}>Presione ENVIAR para registrar su visita</Text>
-      <Button
-        title="Enviar"
-        titleUpperCase
-        disabled={!buttonEnabled}
-        containerStyle={{marginTop: 15}} 
-        onPress={() => this.handleOnPress()}
-      />
-      <Button
-        title="Regresar"
-        titleUpperCase
-        disabled={!buttonEnabled}
-        onPress={() => this.props.setBranch(null)}
-      />
-      {error !== '' && <Text style={styles.errorText}>{error}</Text>}
+      <ScrollView keyboardShouldPersistTaps='handled' keyboardDismissMode='on-drag'>
+        {customerList.length > 1 &&<Dropdown
+          label='Gracias por visitarnos'
+          selectedValue={selectedCustomerId}
+          items={customerList}
+          onValueChange={(itemValue, itemPosition) => this.setState({selectedCustomerId: itemValue})}
+        />}
+        {customerList.length === 1 && <Text style={styles.specialText}>{'Bienvenido ' + customerName}</Text>}
+        <Dropdown
+          label='Me atendió'
+          selectedValue={selectedEmployeeId}
+          items={employeeList}
+          onValueChange={(itemValue, itemPosition) => this.setState({selectedEmployeeId: itemValue})}
+        />
+        <Dropdown
+          label='Servicio brindado'
+          selectedValue={selectedServiceId}
+          items={serviceList}
+          onValueChange={(itemValue, itemPosition) => this.setState({selectedServiceId: itemValue})}
+        />
+        <RatingBar
+          label='Califiquenos'
+          maxRating={5}
+          rating={rating}
+          onPress={(value) => this.setState({rating: value})}
+        />
+        <TextField
+            label='Ingrese su comentario'
+            value={comment}
+            onChangeText={(value) => this.setState({comment: value})}
+          />
+        <Text style={styles.contentText}>Presione ENVIAR para registrar su visita</Text>
+        <Button
+          title="Enviar"
+          titleUpperCase
+          disabled={!buttonEnabled}
+          containerStyle={{marginTop: 15}} 
+          onPress={() => this.handleOnPress()}
+        />
+        <Button
+          title="Regresar"
+          titleUpperCase
+          disabled={!buttonEnabled}
+          onPress={() => this.props.setBranch(null)}
+        />
+        {error !== '' && <Text style={styles.errorText}>{error}</Text>}
+      </ScrollView>
     </View>
   }
 
   handleOnPress() {
-    const { selectedEmployeeId, selectedServiceId, rating, selectedCustomerId } = this.state
-    this.props.trackVisitorActivity(selectedEmployeeId, selectedServiceId, rating, selectedCustomerId)
+    const { selectedEmployeeId, selectedServiceId, rating, comment, selectedCustomerId } = this.state
+    this.props.trackVisitorActivity(selectedEmployeeId, selectedServiceId, rating, comment, selectedCustomerId)
   }
 }
 

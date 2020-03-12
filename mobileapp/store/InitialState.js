@@ -15,6 +15,7 @@ export const INITIAL_STATE = {
     employeeList: [],
     customerList: [],
     serviceList: [],
+    rewardMessage: '',
     error: ''
   }
 }

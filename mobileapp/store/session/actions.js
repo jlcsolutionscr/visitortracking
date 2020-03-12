@@ -7,6 +7,7 @@ import {
   SET_EMPLOYEE_LIST,
   SET_SERVICE_LIST,
   SET_CUSTOMER_LIST,
+  SET_REWARD_MESSAGE,
   SET_ERROR
 } from './types'
 
@@ -64,6 +65,13 @@ export const setCustomerList = (list) => {
   return {
     type: SET_CUSTOMER_LIST,
     payload: { list }
+  }
+}
+
+export const setRewardMessage = (message) => {
+  return {
+    type: SET_REWARD_MESSAGE,
+    payload: { message }
   }
 }
 
@@ -147,16 +155,20 @@ export function registerCustomer (customer) {
   }
 }
 
-export function trackVisitorActivity (employeeId, serviceId, rating, customerId) {
+export function trackVisitorActivity (employeeId, serviceId, rating, comment, customerId) {
   return async (dispatch, getState) => {
     const serviceURL = Config.SERVER_URL
     const { deviceId, branch, token } = getState().session
     dispatch(startLoader())
     dispatch(setError(''))
     try {
-      await visitorActivityTracking(serviceURL, deviceId, branch.AccessCode, employeeId, serviceId, rating, customerId, token)
-      dispatch(setBranch(null))
-      dispatch(setModalMessage('Tu visita ha sido registrada satisfactoriamente'))
+      const response = await visitorActivityTracking(serviceURL, deviceId, branch.AccessCode, employeeId, serviceId, rating, comment, customerId, token)
+      if (response === '') {
+        dispatch(setBranch(null))
+        dispatch(setModalMessage('Tu visita ha sido registrada satisfactoriamente'))
+      } else {
+        dispatch(setRewardMessage(response))
+      }
       dispatch(stopLoader())
     } catch (error) {
       dispatch(stopLoader())
