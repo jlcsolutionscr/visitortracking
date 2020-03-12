@@ -118,7 +118,7 @@ CREATE TABLE authorizationentry (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO user values (1, 'ADMIN', '/SOHlDytfCDqqGitmLZJgw==', '');
-INSERT INTO user values (2, 'MOBILEAPP', '/SOHlDytfCDqqGitmLZJgw==', '');
+INSERT INTO user values (2, 'MOBILEAPP', 'hUf9Ag+Ljkh7SOb2gRqThg==', '');
 INSERT INTO role VALUES (1, 'Administrador');
 INSERT INTO role VALUES (2, 'Actualiza datos de la empresa');
 INSERT INTO role VALUES (3, 'Actualiza datos de usuarios');
