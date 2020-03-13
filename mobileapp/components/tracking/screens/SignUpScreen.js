@@ -95,7 +95,6 @@ export class SignUpScreen extends Component {
         <Button
           title="Regresar"
           titleUpperCase
-          disabled={!buttonEnabled}
           onPress={() => this.props.setBranch(null)}
         />
         {error !== '' && <Text style={styles.errorText}>{error}</Text>}
