@@ -12,7 +12,6 @@ using jlcsolutionscr.com.visitortracking.webapi.services;
 namespace jlcsolutionscr.com.visitortracking.webapi.controllers
 {
     [ApiController]
-    [Route("/webservice/")]
     public class VisitorTrackingController : ControllerBase
     {
         private readonly ILogger<VisitorTrackingController> _logger;
@@ -40,6 +39,12 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
         {
             _logger = logger;
             _settings = settings;
+        }
+
+        [HttpGet("status")]
+        public string Status(string username, string password, string identifier)
+        {
+            return "Active";
         }
 
         [HttpGet("userlogin")]
