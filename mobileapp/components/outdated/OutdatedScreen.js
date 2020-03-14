@@ -1,25 +1,30 @@
 import React from 'react'
 
-import { Dimensions, StyleSheet, View, Text } from 'react-native'
+import { Dimensions, StyleSheet, View, Text, Linking } from 'react-native'
 import Button from '../custom/Button'
 
-const { height, width } = Dimensions.get('window')
+const { height } = Dimensions.get('window')
 const remY = height / 683.4285714285714
 
 const OutdatedScreen = (props) => {
   return (
     <View style={styles.content}>
       <Text style={styles.text}>
-        {props.messageId === 1 ?
-          'La aplicación se encuentra desactualizada. Por favor ingrese al Google Play Store del dispositivo y proceda con la actualización.' :
-          'La empresa no se encuentra configurada correctamente. Por favor ingrese al portal web o a la aplicación Windows para proceder con la configuración requerida.'}
+        La aplicación se encuentra desactualizada. Por favor ingrese al Google Play Store del dispositivo y proceda con la actualización.
       </Text>
       <Button
         containerStyle={styles.buttonContainer}
         style={styles.button}
         titleUpperCase
-        title={props.messageId === 1 ? 'Cerrar App' : 'Cerrar sesión'}
+        title='Cerrar App'
         onPress={() => props.handleBackPress()}
+      />
+      <Button
+        containerStyle={styles.buttonContainer}
+        style={styles.button}
+        titleUpperCase
+        title='Ir al Play Store'
+        onPress={() => Linking.openURL('market://details?id=googoo.android.btgps')}
       />
     </View>
   )
