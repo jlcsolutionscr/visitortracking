@@ -1,4 +1,5 @@
 import Config from 'react-native-config'
+import { getAppstoreAppMetadata } from 'react-native-appstore-version-checker'
 
 import {
   SET_SESSION_TOKEN,
@@ -89,10 +90,10 @@ export function validateSessionState () {
     dispatch(startLoader())
     dispatch(setModalError(''))
     try {
+      const metadata = await getAppstoreAppMetadata("com.jlcvisitortracking")
       const deviceId = await DeviceInfo.getAndroidId()
-      const latestAppVersion = await getLatestAppVersion(serviceURL)
       const currentVersion = await DeviceInfo.getVersion()
-      if (latestAppVersion !== currentVersion) {
+      if (metadata.version !== currentVersion) {
         dispatch(setSessionStatus(deviceId, 'outdated'))
       } else {
         if (token === null) {

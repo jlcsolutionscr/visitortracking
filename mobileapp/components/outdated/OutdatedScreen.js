@@ -1,16 +1,13 @@
 import React from 'react'
 
-import { Dimensions, StyleSheet, View, Text, Linking } from 'react-native'
+import { StyleSheet, View, Text, Linking } from 'react-native'
 import Button from '../custom/Button'
-
-const { height } = Dimensions.get('window')
-const remY = height / 683.4285714285714
 
 const OutdatedScreen = (props) => {
   return (
     <View style={styles.content}>
       <Text style={styles.text}>
-        La aplicación se encuentra desactualizada. Por favor ingrese al Google Play Store del dispositivo y proceda con la actualización.
+        Existe una actualización pendiente. Ingrese al Google Play Store para continuar
       </Text>
       <Button
         containerStyle={styles.buttonContainer}
@@ -21,10 +18,9 @@ const OutdatedScreen = (props) => {
       />
       <Button
         containerStyle={styles.buttonContainer}
-        style={styles.button}
         titleUpperCase
-        title='Ir al Play Store'
-        onPress={() => Linking.openURL('market://details?id=googoo.android.btgps')}
+        title='Ingresar a Play Store'
+        onPress={() => Linking.openURL('market://details?id=com.jlcvisitortracking')}
       />
     </View>
   )
@@ -40,20 +36,12 @@ const styles = StyleSheet.create({
   text: {
     color: 'white',
     textAlign: 'center',
-    fontSize: 22,
+    fontSize: 20,
     marginBottom: 20
   },
   buttonContainer: {
     padding: 0,
-    marginBottom: 2
-  },
-  button: {
-    backgroundColor: '#909596',
-    borderColor: '#909596',
-    borderRadius: 2,
-    paddingLeft: (60 * remY),
-    paddingRight: (60 * remY),
-    height: (40 * remY)
+    marginBottom: 20
   }
 })
 
