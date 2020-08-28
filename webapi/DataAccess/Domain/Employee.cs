@@ -10,5 +10,6 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess.domain
         public string Name { get; set; }
         public string MobileNumber { get; set; }
         public bool Active { get; set; }
+        public bool ScheduleEnabled { get; set; }
     }
 }
