@@ -204,11 +204,16 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                             branchEntity = service.GetBranchByCode(accessCode);
                             response = JsonSerializer.Serialize(branchEntity, new JsonSerializerOptions());
                             break;
-                        case "GetPendingRegistryList":
+                        case "GetCustomerList":
                             companyEntityId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CompanyId").Value.ToString());
-                            List<ActivityList> registryList = service.GetPendingRegistryList(companyEntityId);
+                            List<IdDescList> registryList = service.GetCustomerList(companyEntityId);
                             if (registryList.Count > 0)
                                 response = JsonSerializer.Serialize(registryList, new JsonSerializerOptions());
+                            break;
+                        case "GetCustomer":
+                            customerId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CustomerId").Value.ToString());
+                            customerEntity = service.GetCustomer(customerId);
+                            response = JsonSerializer.Serialize(serviceEntity, new JsonSerializerOptions());
                             break;
                         case "GetRegisteredCustomerList":
                             deviceId = message.Parameters.FirstOrDefault(x => x.Key == "DeviceId").Value.ToString();

@@ -432,57 +432,6 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public Customer GetCustomer(int id)
-        {
-            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
-            {
-                try
-                {
-                    Customer entity = dbContext.CustomerRepository.FirstOrDefault(x => x.Id == id);
-                    return entity;
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
-            }
-        }
-
-        public string AddCustomer(Customer entity)
-        {
-            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
-            {
-                try
-                {
-                    dbContext.CustomerRepository.Add(entity);
-                    dbContext.Commit();
-                    return entity.Id.ToString();
-                }
-                catch (Exception ex)
-                {
-                    dbContext.RollBack();
-                    throw ex;
-                }
-            }
-        }
-
-        public void UpdateCustomer(Customer entity)
-        {
-            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
-            {
-                try
-                {
-                    dbContext.ChangeNotify(entity);
-                    dbContext.Commit();
-                }
-                catch (Exception ex)
-                {
-                    dbContext.RollBack();
-                    throw ex;
-                }
-            }
-        }
-
         public List<IdDescList> GetEmployeeList(int companyId)
         {
             List<IdDescList> results = new List<IdDescList>();
@@ -701,25 +650,76 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public List<ActivityList> GetPendingRegistryList(int companyId)
+        public List<IdDescList> GetCustomerList(int companyId)
         {
-            List<ActivityList> results = new List<ActivityList>();
+            List<IdDescList> results = new List<IdDescList>();
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
                 try
                 {
                     var list = dbContext.CustomerRepository.Join(dbContext.RegistryRepository, x => x.Id, y => y.CustomerId, (x, y) => new { x, y })
-                        .Where(x => x.y.CompanyId == companyId && x.y.Status == StaticStatus.Pending)
-                        .Select(x => new { Id = x.y.Id, Name = x.x.Name, RegisterDate = x.y.RegisterDate }).ToList();   
-                    foreach(var entry in list)
+                        .Where(x => x.y.CompanyId == companyId)
+                        .Select(x => new { Id = x.x.Id, Name = x.x.Name}).ToList();
+                    foreach(var customer in list)
                     {
-                        ActivityList item = new ActivityList(entry.Id, entry.Name, entry.RegisterDate.ToString(strFormat), "");
+                        IdDescList item = new IdDescList(customer.Id, customer.Name);
                         results.Add(item);
                     }
                     return results;
                 }
                 catch (Exception ex)
                 {
+                    throw ex;
+                }
+            }
+        }
+
+        public Customer GetCustomer(int id)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    Customer entity = dbContext.CustomerRepository.FirstOrDefault(x => x.Id == id);
+                    return entity;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+        }
+
+        public string AddCustomer(Customer entity)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    dbContext.CustomerRepository.Add(entity);
+                    dbContext.Commit();
+                    return entity.Id.ToString();
+                }
+                catch (Exception ex)
+                {
+                    dbContext.RollBack();
+                    throw ex;
+                }
+            }
+        }
+
+        public void UpdateCustomer(Customer entity)
+        {
+            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
+            {
+                try
+                {
+                    dbContext.ChangeNotify(entity);
+                    dbContext.Commit();
+                }
+                catch (Exception ex)
+                {
+                    dbContext.RollBack();
                     throw ex;
                 }
             }
@@ -899,11 +899,11 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         .Join(dbContext.ActivityRepository, x => x.y.Id, y => y.RegistryId, (x, y) => new { x, y })
                         .Join(dbContext.ServiceRepository, x => x.y.ServiceId, y => y.Id, (x, y) => new { x, y })
                         .Where(x => x.y.CompanyId == companyId && x.x.y.BranchId == branchId && x.x.y.VisitDate >= datStartDate && x.x.y.VisitDate <= datEndDate)
-                        .Select(x => new { Id = x.x.y.Id, Name = x.x.x.x.Name, x.x.y.VisitDate, Service = x.y.Description }).ToList();
+                        .Select(x => new { Id = x.x.y.Id, Name = x.x.x.x.Name, x.x.y.VisitDate, Service = x.y.Description, x.x.y.Comment }).ToList();
                         
                     foreach(var entry in list)
                     {
-                        ActivityList item = new ActivityList(entry.Id, entry.Name, entry.VisitDate.ToString(strFormat), entry.Service);
+                        ActivityList item = new ActivityList(entry.Id, entry.Name, entry.VisitDate.ToString(strFormat), entry.Service, entry.Comment);
                         results.Add(item);
                     }
                     return results;
