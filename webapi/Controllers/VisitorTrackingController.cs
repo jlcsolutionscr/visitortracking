@@ -213,7 +213,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                         case "GetCustomer":
                             customerId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CustomerId").Value.ToString());
                             customerEntity = service.GetCustomer(customerId);
-                            response = JsonSerializer.Serialize(serviceEntity, new JsonSerializerOptions());
+                            response = JsonSerializer.Serialize(customerEntity, new JsonSerializerOptions());
                             break;
                         case "GetRegisteredCustomerList":
                             deviceId = message.Parameters.FirstOrDefault(x => x.Key == "DeviceId").Value.ToString();
