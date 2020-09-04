@@ -17,7 +17,7 @@ import {
   trackVisitorActivity
 } from '../../store/session/actions'
 
-import { ScrollView, View, Text } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity } from 'react-native'
 
 import Dropdown from '../custom/Dropdown'
 import TextField from '../custom/TextField'
@@ -49,7 +49,7 @@ function TrackingScreen(props) {
   }
   return (
     <View key="1" style={styles.subContainer}>
-      <View style={[styles.header, { marginTop: 30, marginBottom: 20 }]}>
+      <View style={[styles.header, { marginTop: 10, marginBottom: 15 }]}>
         <Text style={styles.title}>{branch.Description}</Text>
       </View>
       <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
@@ -72,7 +72,11 @@ function TrackingScreen(props) {
           />
         )}
         {!notInList && customerList.length === 1 && <Text style={styles.specialText}>{'Bienvenido ' + customerName}</Text>}
-        {!notInList && <Button title="No aparaces" titleUpperCase containerStyle={{ marginTop: 15 }} onPress={() => handleNotInList()} />}
+        {!notInList && (
+          <TouchableOpacity onPress={() => handleNotInList()}>
+            <Text style={styles.underLineText}>No aparaces</Text>
+          </TouchableOpacity>
+        )}
         <Dropdown
           label="Me atendió"
           selectedValue={selectedEmployeeId}

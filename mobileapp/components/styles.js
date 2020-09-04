@@ -3,7 +3,7 @@ const { width, height } = Dimensions.get('window')
 const rem = width / 411.42857142857144
 const remY = height / 683.4285714285714
 
-export default styles = StyleSheet.create({
+export default (styles = StyleSheet.create({
   container: {
     flex: 1
   },
@@ -23,7 +23,7 @@ export default styles = StyleSheet.create({
     fontSize: 16 * rem
   },
   header: {
-    height: 50 * remY,
+    height: 40 * remY,
     backgroundColor: '#FAFAFA',
     justifyContent: 'center',
     alignItems: 'center'
@@ -44,7 +44,7 @@ export default styles = StyleSheet.create({
   },
   contentText: {
     fontFamily: 'TitilliumWeb-Light',
-    fontSize: 20 * rem,
+    fontSize: 18 * rem,
     textAlign: 'center'
   },
   specialText: {
@@ -52,7 +52,14 @@ export default styles = StyleSheet.create({
     marginBottom: 10,
     color: '#48479C',
     fontFamily: 'TitilliumWeb-Bold',
-    fontSize: 22 * rem,
+    fontSize: 20 * rem,
+    textAlign: 'center'
+  },
+  underLineText: {
+    fontSize: 20,
+    textDecorationLine: 'underline',
+    color: '#48479C',
+    fontWeight: 'bold',
     textAlign: 'center'
   },
   errorText: {
@@ -62,4 +69,4 @@ export default styles = StyleSheet.create({
     textAlign: 'center'
   },
   rewardContainer: {}
-})
+}))
