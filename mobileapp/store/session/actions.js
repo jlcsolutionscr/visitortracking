@@ -115,7 +115,6 @@ export function validateSessionState() {
           dispatch(setSessionToken(session.Token))
         }
         dispatch(setSessionStatus(deviceId, 'ready'))
-        dispatch(validateCodeInfo('6b689301-c594-403d-9185-bb339d254d3c'))
       }
       dispatch(stopLoader())
     } catch (error) {

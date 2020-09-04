@@ -811,7 +811,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     }
                     Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.CompanyId == branch.CompanyId && x.CustomerId == customer.Id);
                     if (registry == null) throw new Exception("No se encontró registro del cliente en el sistema.");
-                    if (registry.DeviceId == "") registry.DeviceId = deviceId;
+                    if (registry.DeviceId != deviceId) registry.DeviceId = deviceId;
                     if (company.PromotionAt > 0)
                     {
                         int visitNumber = registry.VisitCount + 1;
