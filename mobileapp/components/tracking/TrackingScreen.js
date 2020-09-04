@@ -21,11 +21,24 @@ class TrackingScreen extends Component {
     this.state = {
       notInList: this.props.customerList.length === 0,
       identifier: '',
-      selectedCustomerId: this.props.customerList.length > 0 ? this.props.customerList[0].Id : 0,
-      selectedEmployeeId: this.props.employeeList.length > 0 ? this.props.employeeList[0].Id : 0,
-      selectedServiceId: this.props.serviceList.length > 0 ? this.props.serviceList[0].Id : 0,
+      selectedCustomerId: 0,
+      selectedEmployeeId: 0,
+      selectedServiceId: 0,
       rating: 0,
       comment: ''
+    }
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.customerList !== prevState.customerList) {
+      return {
+        notInList: nextProps.customerList.length === 0,
+        selectedCustomerId: nextProps.customerList.length > 0 ? nextProps.customerList[0].Id : 0,
+        selectedEmployeeId: nextProps.employeeList.length > 0 ? nextProps.employeeList[0].Id : 0,
+        selectedServiceId: nextProps.serviceList.length > 0 ? nextProps.serviceList[0].Id : 0
+      }
+    } else {
+      return null
     }
   }
 
@@ -54,7 +67,7 @@ class TrackingScreen extends Component {
     const buttonEnabled = (identifier !== '' || selectedCustomerId > 0) && selectedEmployeeId > 0 && rating > 0
     return (
       <View key="1" style={styles.subContainer}>
-        <View style={[styles.header, , { marginTop: 30, marginBottom: 20 }]}>
+        <View style={[styles.header, { marginTop: 30, marginBottom: 20 }]}>
           <Text style={styles.title}>{branch.Description}</Text>
         </View>
         <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
