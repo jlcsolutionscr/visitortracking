@@ -55,11 +55,7 @@ class MainApp extends Component {
       ) : rewardMessage === '' ? (
         <TrackingScreen />
       ) : (
-        <RewardScreen
-          handleClosePress={this.handleClosePress.bind(this)}
-          branch={branch}
-          rewardMessage={rewardMessage}
-        />
+        <RewardScreen handleClosePress={this.handleClosePress.bind(this)} branch={branch} rewardMessage={rewardMessage} />
       )
     const visibility = splashScreenDone && loaderVisible
     const modalVisible = error !== '' || message !== ''
@@ -139,7 +135,4 @@ const mapDispatchToProps = dispatch => {
   )
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MainApp)
+export default connect(mapStateToProps, mapDispatchToProps)(MainApp)

@@ -27,12 +27,7 @@ class StartupScreen extends Component {
               captureAudio={false}
               onGoogleVisionBarcodesDetected={obj => this.props.validateCodeInfo(obj.barcodes[0].data)}
             />
-            <Button
-              title="Regresar"
-              titleUpperCase
-              containerStyle={{ marginTop: 20 }}
-              onPress={() => this.props.setScannerActive(false)}
-            />
+            <Button title="Regresar" titleUpperCase containerStyle={{ marginTop: 20 }} onPress={() => this.props.setScannerActive(false)} />
           </View>
         ) : (
           <View>
@@ -40,12 +35,7 @@ class StartupScreen extends Component {
               <Text style={styles.title}>REGISTRO DE VISITAS</Text>
             </View>
             <Text style={styles.specialText}>Presione el botón para continuar</Text>
-            <Button
-              title="Escanear"
-              titleUpperCase
-              containerStyle={{ marginTop: 20 }}
-              onPress={() => this.props.setScannerActive(true)}
-            />
+            <Button title="Escanear" titleUpperCase containerStyle={{ marginTop: 20 }} onPress={() => this.props.setScannerActive(true)} />
             {error !== '' && <Text style={styles.errorText}>{error}</Text>}
           </View>
         )}
@@ -71,7 +61,4 @@ const mapDispatchToProps = dispatch => {
   )
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(StartupScreen)
+export default connect(mapStateToProps, mapDispatchToProps)(StartupScreen)

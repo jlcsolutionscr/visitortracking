@@ -1,10 +1,21 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
 import { setScannerActive } from '../../store/ui/actions'
 
-import { setBranch, validateCodeInfo, trackVisitorActivity } from '../../store/session/actions'
+import {
+  setBranch,
+  validateCodeInfo,
+  setNotInList,
+  setIdentifier,
+  setSelectedCustomer,
+  setSelectedEmployee,
+  setSelectedService,
+  setRating,
+  setComment,
+  trackVisitorActivity
+} from '../../store/session/actions'
 
 import { ScrollView, View, Text } from 'react-native'
 
@@ -16,15 +27,8 @@ import RatingBar from '../custom/RatingBar'
 import styles from '../styles'
 
 function TrackingScreen(props) {
-  const { branch, error } = props
-  const [notInList, setNotInList] = useState(props.customerList.length === 0)
-  const [identifier, setIdentifier] = useState('')
-  const [selectedCustomerId, setSelectedCustomerId] = useState(props.customerList.length === 0)
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState(props.employeeList.length === 0)
-  const [selectedServiceId, setSelectedServiceId] = useState(props.serviceList.length === 0)
-  const [rating, setRating] = useState(0)
-  const [comment, setComment] = useState('')
-  const customer = props.customerList.find(item => item.Id === selectedCustomerId)
+  const { branch, notInList, identifier, selectedCustomerId, selectedEmployeeId, selectedServiceId, rating, comment, error } = props
+  const customer = selectedCustomerId > 0 ? props.customerList.find(item => item.Id === selectedCustomerId) : null
   const customerList = props.customerList.map(item => {
     return { value: item.Id, label: item.Description }
   })
@@ -36,12 +40,10 @@ function TrackingScreen(props) {
   })
   const customerName = customer ? customer.Description : ''
   const buttonEnabled = (identifier !== '' || selectedCustomerId > 0) && selectedEmployeeId > 0 && rating > 0
-
-  const handleNotInListClick = () => {
-    setNotInList(true)
-    setSelectedCustomerId(0)
+  const handleNotInList = () => {
+    props.setNotInList(true)
+    props.setSelectedCustomer(0)
   }
-
   const handleOnPress = () => {
     props.trackVisitorActivity(selectedEmployeeId, selectedServiceId, rating, comment, selectedCustomerId, identifier)
   }
@@ -58,7 +60,7 @@ function TrackingScreen(props) {
             maxLength={12}
             keyboardType="numeric"
             value={identifier}
-            onChangeText={value => setIdentifier(value)}
+            onChangeText={value => props.setIdentifier(value)}
           />
         )}
         {!notInList && customerList.length > 1 && (
@@ -66,34 +68,25 @@ function TrackingScreen(props) {
             label="Gracias por visitarnos"
             selectedValue={selectedCustomerId}
             items={customerList}
-            onValueChange={(itemValue, itemPosition) => setSelectedCustomerId(itemValue)}
+            onValueChange={(itemValue, itemPosition) => props.setSelectedCustomer(itemValue)}
           />
         )}
-        {!notInList && customerList.length === 1 && (
-          <Text style={styles.specialText}>{'Bienvenido ' + customerName}</Text>
-        )}
-        {!notInList && (
-          <Button
-            title="No aparaces"
-            titleUpperCase
-            containerStyle={{ marginTop: 15 }}
-            onPress={() => handleNotInListClick()}
-          />
-        )}
+        {!notInList && customerList.length === 1 && <Text style={styles.specialText}>{'Bienvenido ' + customerName}</Text>}
+        {!notInList && <Button title="No aparaces" titleUpperCase containerStyle={{ marginTop: 15 }} onPress={() => handleNotInList()} />}
         <Dropdown
           label="Me atendió"
           selectedValue={selectedEmployeeId}
           items={employeeList}
-          onValueChange={(itemValue, itemPosition) => setSelectedEmployeeId(itemValue)}
+          onValueChange={(itemValue, itemPosition) => props.setSelectedEmployee(itemValue)}
         />
         <Dropdown
           label="Servicio brindado"
           selectedValue={selectedServiceId}
           items={serviceList}
-          onValueChange={(itemValue, itemPosition) => setSelectedServiceId(itemValue)}
+          onValueChange={(itemValue, itemPosition) => props.setSelectedService(itemValue)}
         />
-        <RatingBar label="Califiquenos" maxRating={5} rating={rating} onPress={value => setRating(value)} />
-        <TextField label="Ingrese su comentario" value={comment} onChangeText={value => setComment(value)} />
+        <RatingBar label="Califiquenos" maxRating={5} rating={rating} onPress={value => props.setRating(value)} />
+        <TextField label="Ingrese su comentario" value={comment} onChangeText={value => props.setComment(value)} />
         <Text style={styles.contentText}>Presione ENVIAR para registrar su visita</Text>
         <Button
           title="Enviar"
@@ -112,9 +105,16 @@ function TrackingScreen(props) {
 const mapStateToProps = state => {
   return {
     branch: state.session.branch,
+    notInList: state.session.notInList,
     employeeList: state.session.employeeList,
     customerList: state.session.customerList,
     serviceList: state.session.serviceList,
+    identifier: state.session.identifier,
+    selectedCustomerId: state.session.selectedCustomerId,
+    selectedEmployeeId: state.session.selectedEmployeeId,
+    selectedServiceId: state.session.selectedServiceId,
+    rating: state.session.rating,
+    comment: state.session.comment,
     error: state.session.trackingError
   }
 }
@@ -125,6 +125,13 @@ const mapDispatchToProps = dispatch => {
       setBranch,
       setScannerActive,
       validateCodeInfo,
+      setNotInList,
+      setIdentifier,
+      setSelectedCustomer,
+      setSelectedEmployee,
+      setSelectedService,
+      setRating,
+      setComment,
       trackVisitorActivity
     },
     dispatch

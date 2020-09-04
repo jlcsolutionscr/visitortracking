@@ -17,6 +17,13 @@ export const INITIAL_STATE = {
     employeeList: [],
     customerList: [],
     serviceList: [],
+    notInList: true,
+    identifier: '',
+    selectedCustomerId: 0,
+    selectedEmployeeId: 0,
+    selectedServiceId: 0,
+    rating: 0,
+    comment: '',
     rewardMessage: '',
     error: ''
   }

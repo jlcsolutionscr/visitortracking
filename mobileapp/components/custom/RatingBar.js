@@ -11,9 +11,7 @@ const RatingBar = props => {
       <TouchableOpacity activeOpacity={0.7} key={i} onPress={props.onPress.bind(this, i)}>
         <Image
           style={styles.StarImage}
-          source={
-            i <= props.rating ? require('../../assets/star-filled.png') : require('../../assets/star-unfilled.png')
-          }
+          source={i <= props.rating ? require('../../assets/star-filled.png') : require('../../assets/star-unfilled.png')}
         />
       </TouchableOpacity>
     )

@@ -1,8 +1,7 @@
 import xmlParser from 'react-xml-parser'
 
 export function formatCurrency(number, decPlaces, decSep, thouSep) {
-  ;(decPlaces = isNaN((decPlaces = Math.abs(decPlaces))) ? 2 : decPlaces),
-    (decSep = typeof decSep === 'undefined' ? '.' : decSep)
+  ;(decPlaces = isNaN((decPlaces = Math.abs(decPlaces))) ? 2 : decPlaces), (decSep = typeof decSep === 'undefined' ? '.' : decSep)
   thouSep = typeof thouSep === 'undefined' ? ',' : thouSep
   const decIndex = number.toString().indexOf(decSep)
   const sign = number < 0 ? '-' : ''
@@ -41,16 +40,7 @@ function createHtmlElement(name, value, children, level) {
   if (value == '') {
     element += '</div>'
   } else {
-    element +=
-      '<span style="' +
-      textStyle +
-      '">' +
-      value +
-      '</span><span style="' +
-      tagStyle +
-      '">&lt;' +
-      name +
-      '&gt;</span></div>'
+    element += '<span style="' + textStyle + '">' + value + '</span><span style="' + tagStyle + '">&lt;' + name + '&gt;</span></div>'
   }
   if (children.length > 0) {
     children.forEach(child => {

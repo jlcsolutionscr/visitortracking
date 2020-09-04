@@ -3,7 +3,7 @@ const { width, height } = Dimensions.get('window')
 const rem = width / 411.42857142857144
 const remY = height / 683.4285714285714
 
-export default (styles = StyleSheet.create({
+export default styles = StyleSheet.create({
   container: {
     flex: 1
   },
@@ -62,4 +62,4 @@ export default (styles = StyleSheet.create({
     textAlign: 'center'
   },
   rewardContainer: {}
-}))
+})

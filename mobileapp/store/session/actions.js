@@ -9,6 +9,13 @@ import {
   SET_SERVICE_LIST,
   SET_CUSTOMER_LIST,
   SET_REWARD_MESSAGE,
+  SET_NOT_IN_LIST,
+  SET_IDENTIFIER,
+  SET_SELECTED_CUSTOMER,
+  SET_SELECTED_EMPLOYEE,
+  SET_SELECTED_SERVICE,
+  SET_RATING,
+  SET_COMMENT,
   SET_STARTUP_ERROR,
   SET_TRACKING_ERROR,
   SET_ERROR
@@ -97,6 +104,55 @@ export const setError = error => {
   }
 }
 
+export const setNotInList = value => {
+  return {
+    type: SET_NOT_IN_LIST,
+    payload: { value }
+  }
+}
+
+export const setIdentifier = value => {
+  return {
+    type: SET_IDENTIFIER,
+    payload: { value }
+  }
+}
+
+export const setSelectedCustomer = id => {
+  return {
+    type: SET_SELECTED_CUSTOMER,
+    payload: { id }
+  }
+}
+
+export const setSelectedEmployee = id => {
+  return {
+    type: SET_SELECTED_EMPLOYEE,
+    payload: { id }
+  }
+}
+
+export const setSelectedService = id => {
+  return {
+    type: SET_SELECTED_SERVICE,
+    payload: { id }
+  }
+}
+
+export const setRating = value => {
+  return {
+    type: SET_RATING,
+    payload: { value }
+  }
+}
+
+export const setComment = value => {
+  return {
+    type: SET_COMMENT,
+    payload: { value }
+  }
+}
+
 export function validateSessionState() {
   return async (dispatch, getState) => {
     const serviceURL = Config.SERVER_URL
@@ -128,21 +184,28 @@ export function validateCodeInfo(accessCode) {
   return async (dispatch, getState) => {
     const serviceURL = Config.SERVER_URL
     const { deviceId, token } = getState().session
-    dispatch(startLoader())
     dispatch(setScannerActive(false))
+    dispatch(startLoader())
     dispatch(setStartupError(''))
     try {
       const branch = await getBranchInfo(serviceURL, accessCode, token)
       if (!branch) {
         dispatch(setStartupError('No se encontró una sucursal asociada con el código QR.'))
       } else {
-        dispatch(setBranch(branch))
-        const employeeList = await GetActiveEmployeeList(serviceURL, branch.CompanyId, token)
-        dispatch(setEmployeeList(employeeList))
-        const serviceList = await GetActiveServiceList(serviceURL, branch.CompanyId, token)
-        dispatch(setServiceList(serviceList))
         const customerList = await getRegisteredCustomerList(serviceURL, deviceId, accessCode, token)
+        const employeeList = await GetActiveEmployeeList(serviceURL, branch.CompanyId, token)
+        const serviceList = await GetActiveServiceList(serviceURL, branch.CompanyId, token)
+        dispatch(setBranch(branch))
+        dispatch(setIdentifier(''))
         dispatch(setCustomerList(customerList))
+        dispatch(setNotInList(customerList.length < 1))
+        dispatch(setSelectedCustomer(customerList.length > 0 ? customerList[0].Id : 0))
+        dispatch(setEmployeeList(employeeList))
+        dispatch(setSelectedEmployee(employeeList.length > 0 ? employeeList[0].Id : 0))
+        dispatch(setServiceList(serviceList))
+        dispatch(setSelectedService(serviceList.length > 0 ? serviceList[0].Id : 0))
+        dispatch(setRating(0))
+        dispatch(setComment(''))
       }
       dispatch(setTrackingError(''))
       dispatch(stopLoader())

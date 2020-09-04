@@ -48,12 +48,7 @@ export default class RewardScreen extends Component {
             source={require('../../assets/prize.png')}
           />
         </View>
-        <Button
-          title="Cerrar"
-          titleUpperCase
-          containerStyle={{ marginTop: 30 }}
-          onPress={() => this.props.handleClosePress()}
-        />
+        <Button title="Cerrar" titleUpperCase containerStyle={{ marginTop: 30 }} onPress={() => this.props.handleClosePress()} />
       </Animated.View>
     )
   }

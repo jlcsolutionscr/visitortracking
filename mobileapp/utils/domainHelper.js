@@ -59,11 +59,7 @@ export async function GetActiveServiceList(serviceURL, companyId, token) {
 export async function getRegisteredCustomerList(serviceURL, deviceId, accessCode, token) {
   try {
     const data =
-      '{"MethodName": "GetRegisteredCustomerList", "Parameters": {"DeviceId": "' +
-      deviceId +
-      '", "AccessCode": "' +
-      accessCode +
-      '"}}'
+      '{"MethodName": "GetRegisteredCustomerList", "Parameters": {"DeviceId": "' + deviceId + '", "AccessCode": "' + accessCode + '"}}'
     const response = await postWithResponse(serviceURL + '/messagewithresponse', token, data)
     if (response === null) {
       return []

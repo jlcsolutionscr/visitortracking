@@ -22,8 +22,6 @@ export default class AnimatedView extends Component {
       extrapolate: 'clamp'
     })
 
-    return (
-      <Animated.View style={[StyleSheet.absoluteFill, { opacity: opacityValue }]}>{this.props.children}</Animated.View>
-    )
+    return <Animated.View style={[StyleSheet.absoluteFill, { opacity: opacityValue }]}>{this.props.children}</Animated.View>
   }
 }
