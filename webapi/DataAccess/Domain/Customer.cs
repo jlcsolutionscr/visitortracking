@@ -15,5 +15,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.dataaccess.domain
         public string Address { get; set; }
         public string MobileNumber { get; set; }
         public string Email { get; set; }
+        [NotMapped]
+        public int CompanyId { get; set; }
     }
 }

@@ -21,15 +21,15 @@ class Loader extends React.Component {
     closeOnTouch: false
   }
 
-  render () {
+  render() {
     let { overlayColor, size, color, visible } = this.props
-    return (
-      visible ? (<View style={[styles.modalWrapper, { backgroundColor: overlayColor }]}>
+    return visible ? (
+      <View style={[styles.modalWrapper, { backgroundColor: overlayColor }]}>
         <View>
           <Bubbles size={size} color={color} />
         </View>
-      </View>) : null
-    )
+      </View>
+    ) : null
   }
 }
 

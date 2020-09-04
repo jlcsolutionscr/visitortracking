@@ -3,7 +3,7 @@ const { width, height } = Dimensions.get('window')
 const rem = width / 411.42857142857144
 const remY = height / 683.4285714285714
 
-export default styles = StyleSheet.create({
+export default (styles = StyleSheet.create({
   container: {
     flex: 1
   },
@@ -20,7 +20,7 @@ export default styles = StyleSheet.create({
   },
   modalButtonText: {
     fontFamily: 'TitilliumWeb-Regular',
-    fontSize: (16 * rem)
+    fontSize: 16 * rem
   },
   header: {
     height: 50 * remY,
@@ -30,20 +30,21 @@ export default styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'TitilliumWeb-Bold',
-    fontSize: (30 * rem),
-    color: '#DD2600'
+    fontSize: 30 * rem,
+    color: '#DD2600',
+    textAlign: 'center'
   },
   content: {
     backgroundColor: '#FAFAFA',
     padding: 20
   },
   navIcon: {
-    width: (20 * rem),
-    height: (20 * rem)
+    width: 20 * rem,
+    height: 20 * rem
   },
   contentText: {
     fontFamily: 'TitilliumWeb-Light',
-    fontSize: (20 * rem),
+    fontSize: 20 * rem,
     textAlign: 'center'
   },
   specialText: {
@@ -51,16 +52,14 @@ export default styles = StyleSheet.create({
     marginBottom: 10,
     color: '#48479C',
     fontFamily: 'TitilliumWeb-Bold',
-    fontSize: (22 * rem),
+    fontSize: 22 * rem,
     textAlign: 'center'
   },
   errorText: {
     fontFamily: 'TitilliumWeb-Light',
-    fontSize: (18 * rem),
+    fontSize: 18 * rem,
     color: 'red',
     textAlign: 'center'
   },
-  rewardContainer: {
-
-  }
-})
+  rewardContainer: {}
+}))

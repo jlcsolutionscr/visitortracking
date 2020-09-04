@@ -27,7 +27,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 string strGuid = Guid.NewGuid().ToString();
                 try
                 {
-                    
+
                     AuthorizationEntry entry = new AuthorizationEntry
                     {
                         Id = strGuid,
@@ -94,7 +94,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 {
                     DateTime detMaxDate = DateTime.UtcNow;
                     var list = dbContext.AuthorizationEntryRepository.Where(x => x.EmitedAt < detMaxDate).ToList();
-                    foreach(AuthorizationEntry entry in list)
+                    foreach (AuthorizationEntry entry in list)
                     {
                         dbContext.RemoveNotify(entry);
                         dbContext.Commit();
@@ -133,7 +133,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     session.CompanyId = company == null ? -1 : company.Id;
                     session.CompanyName = company == null ? null : company.CompanyName;
                     session.CompanyIdentifier = company == null ? null : company.Identifier;
-                    roles.ForEach(item => {
+                    roles.ForEach(item =>
+                    {
                         RoleItem role = new RoleItem(item.RoleId, item.UserId);
                         session.RolePerUser.Add(role);
                     });
@@ -156,7 +157,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     List<Company> list = dbContext.CompanyRepository.ToList();
-                    foreach(var company in list)
+                    foreach (var company in list)
                     {
                         IdDescList item = new IdDescList(company.Id, company.CompanyName);
                         results.Add(item);
@@ -211,9 +212,10 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     dbContext.ChangeNotify(entity);
-                    if (entity.PromotionAt == 0) {
+                    if (entity.PromotionAt == 0)
+                    {
                         List<Registry> list = dbContext.RegistryRepository.Where(x => x.CompanyId == entity.Id).ToList();
-                        foreach(var entry in list)
+                        foreach (var entry in list)
                         {
                             entry.VisitCount = 0;
                             dbContext.ChangeNotify(entry);
@@ -237,7 +239,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     List<User> list = dbContext.UserRepository.Where(x => x.Identifier == identifier).ToList();
-                    foreach(var user in list)
+                    foreach (var user in list)
                     {
                         IdDescList item = new IdDescList(user.Id, user.Username);
                         results.Add(item);
@@ -258,10 +260,12 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     User entity = dbContext.UserRepository.FirstOrDefault(x => x.Id == id);
-                    if (entity != null) {
+                    if (entity != null)
+                    {
                         List<IdDescList> roleList = new List<IdDescList>();
                         List<RolePerUser> list = dbContext.RolePerUserRepository.Where(x => x.UserId == entity.Id).ToList();
-                        list.ForEach(item => {
+                        list.ForEach(item =>
+                        {
                             Role role = dbContext.RoleRepository.Find(item.RoleId);
                             roleList.Add(new IdDescList(role.Id, role.Description));
                         });
@@ -287,7 +291,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     User existing = dbContext.UserRepository.AsNoTracking().FirstOrDefault(x => x.Identifier == entity.Identifier && x.Username == entity.Username);
                     if (existing != null) throw new Exception("El código de usuario ya se encuentra registrado. No es posible agregar el registro.");
                     dbContext.UserRepository.Add(entity);
-                    entity.RoleList.ForEach(role => {
+                    entity.RoleList.ForEach(role =>
+                    {
                         RolePerUser rolePerUser = new RolePerUser();
                         rolePerUser.User = entity;
                         rolePerUser.RoleId = role.Id;
@@ -317,10 +322,12 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     }
                     dbContext.ChangeNotify(entity);
                     List<RolePerUser> list = dbContext.RolePerUserRepository.Where(x => x.UserId == entity.Id).ToList();
-                    list.ForEach(item => {
+                    list.ForEach(item =>
+                    {
                         dbContext.RemoveNotify(item);
                     });
-                    entity.RoleList.ForEach(role => {
+                    entity.RoleList.ForEach(role =>
+                    {
                         RolePerUser rolePerUser = new RolePerUser();
                         rolePerUser.UserId = entity.Id;
                         rolePerUser.RoleId = role.Id;
@@ -344,7 +351,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     List<Role> list = dbContext.RoleRepository.ToList();
-                    foreach(var role in list)
+                    foreach (var role in list)
                     {
                         IdDescList item = new IdDescList(role.Id, role.Description);
                         results.Add(item);
@@ -366,7 +373,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     List<Branch> list = dbContext.BranchRepository.Where(x => x.CompanyId == companyId).ToList();
-                    foreach(var role in list)
+                    foreach (var role in list)
                     {
                         IdDescList item = new IdDescList(role.Id, role.Description);
                         results.Add(item);
@@ -440,7 +447,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     List<Employee> list = dbContext.EmployeeRepository.Where(x => x.CompanyId == companyId).ToList();
-                    foreach(var employee in list)
+                    foreach (var employee in list)
                     {
                         IdDescList item = new IdDescList(employee.Id, employee.Name);
                         results.Add(item);
@@ -462,7 +469,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     List<Employee> list = dbContext.EmployeeRepository.Where(x => x.CompanyId == companyId && x.Active).ToList();
-                    foreach(var employee in list)
+                    foreach (var employee in list)
                     {
                         IdDescList item = new IdDescList(employee.Id, employee.Name);
                         results.Add(item);
@@ -539,7 +546,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     List<Service> list = dbContext.ServiceRepository.Where(x => x.CompanyId == companyId).ToList();
-                    foreach(var employee in list)
+                    foreach (var employee in list)
                     {
                         IdDescList item = new IdDescList(employee.Id, employee.Description);
                         results.Add(item);
@@ -561,7 +568,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 try
                 {
                     List<Service> list = dbContext.ServiceRepository.Where(x => x.CompanyId == companyId && x.Active).ToList();
-                    foreach(var employee in list)
+                    foreach (var employee in list)
                     {
                         IdDescList item = new IdDescList(employee.Id, employee.Description);
                         results.Add(item);
@@ -659,8 +666,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 {
                     var list = dbContext.CustomerRepository.Join(dbContext.RegistryRepository, x => x.Id, y => y.CustomerId, (x, y) => new { x, y })
                         .Where(x => x.y.CompanyId == companyId)
-                        .Select(x => new { Id = x.x.Id, Name = x.x.Name}).ToList();
-                    foreach(var customer in list)
+                        .Select(x => new { Id = x.x.Id, Name = x.x.Name }).ToList();
+                    foreach (var customer in list)
                     {
                         IdDescList item = new IdDescList(customer.Id, customer.Name);
                         results.Add(item);
@@ -696,7 +703,30 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             {
                 try
                 {
-                    dbContext.CustomerRepository.Add(entity);
+                    Company company = dbContext.CompanyRepository.Find(entity.CompanyId);
+                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(company.UtcTimeFactor)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
+                    Customer customer = dbContext.CustomerRepository.FirstOrDefault(x => x.Identifier == entity.Identifier);
+                    if (customer == null)
+                    {
+                        dbContext.CustomerRepository.Add(entity);
+                    }
+                    else
+                    {
+                        customer.Name = entity.Name;
+                        customer.Address = entity.Address;
+                        customer.MobileNumber = entity.MobileNumber;
+                        customer.Birthday = entity.Birthday;
+                        customer.Email = entity.Email;
+                        dbContext.ChangeNotify(customer);
+                    }
+                    Registry registry = new Registry();
+                    registry.DeviceId = "";
+                    registry.CompanyId = company.Id;
+                    registry.Customer = customer != null ? customer : entity;
+                    registry.RegisterDate = DateTime.UtcNow.AddHours(company.UtcTimeFactor);
+                    registry.Status = StaticStatus.Active;
+                    registry.VisitCount = 0;
+                    dbContext.RegistryRepository.Add(registry);
                     dbContext.Commit();
                     return entity.Id.ToString();
                 }
@@ -740,7 +770,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     List<Customer> list = dbContext.CustomerRepository.Join(dbContext.RegistryRepository, x => x.Id, y => y.CustomerId, (x, y) => new { x, y })
                         .Where(x => x.y.DeviceId == deviceId && x.y.CompanyId == company.Id && x.y.Status == StaticStatus.Active)
                         .Select(x => x.x).ToList();
-                    foreach(var entry in list)
+                    foreach (var entry in list)
                     {
                         IdDescList item = new IdDescList(entry.Id, entry.Name);
                         results.Add(item);
@@ -754,7 +784,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             }
         }
 
-        public void CustomerRegistry(string deviceId, string accessCode, string name, string identifier, string birthday, string address, string mobileNumber, string email)
+        public string TrackCustomerVisit(string deviceId, string accessCode, int employeeId, int productId, int rating, string comment, int customerId, string identifier)
         {
             using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
             {
@@ -765,97 +795,31 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     if (!branch.Active) throw new Exception("La sucursal se encuentra inactiva en el sistema. Consulte con su proveedor del servicio.");
                     Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
                     if (company.ExpiresAt < DateTime.UtcNow.AddHours(company.UtcTimeFactor)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
-                    DateTime datBirthday = DateTime.ParseExact(birthday + " 00:00:01", strFormat, provider);
-                    Customer customer = dbContext.CustomerRepository.FirstOrDefault(x => x.Identifier == identifier);
-                    if (customer == null)
-                    {
-                        customer = new Customer();
-                        customer.Name = name;
-                        customer.Identifier = identifier;
-                        customer.Birthday = datBirthday;
-                        customer.Address = address;
-                        customer.MobileNumber = mobileNumber;
-                        customer.Email = email;
-                        dbContext.CustomerRepository.Add(customer);
-                    }
-                    else
-                    {
-                        customer.Name = name;
-                        customer.Birthday = datBirthday;
-                        customer.Address = address;
-                        customer.MobileNumber = mobileNumber;
-                        customer.Email = email;
-                        dbContext.ChangeNotify(customer);
-                    }
-                    Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.CompanyId == company.Id && x.CustomerId == customer.Id);
-                    if (registry != null) {
-                        if (registry.Status == StaticStatus.Pending) throw new Exception("Existe una solicitud de inscripción pendiente. No es posible ingresar otra solicitud");
-                        if (registry.DeviceId == deviceId) throw new Exception("La identificación suministrada ya se encuentra registrada mediante este dispositivo. No es posible ingresar otra solicitud");
-                        registry.DeviceId = deviceId;
-                        dbContext.ChangeNotify(registry);
-                    }
-                    else
-                    {
-                        registry = new Registry();
-                        registry.DeviceId = deviceId;
-                        registry.CompanyId = branch.CompanyId;
-                        registry.Customer = customer;
-                        registry.RegisterDate = DateTime.UtcNow.AddHours(company.UtcTimeFactor);
-                        registry.Status = StaticStatus.Pending;
-                        registry.VisitCount = 0;
-                        dbContext.RegistryRepository.Add(registry);
-                    }
-                    dbContext.Commit();
-                }
-                catch (Exception ex)
-                {
-                    dbContext.RollBack();
-                    throw ex;
-                }
-            }
-        }
-
-        public void RegistryApproval(int registryId)
-        {
-            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
-            {
-                try
-                {
-                    Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.Id == registryId);
-                    if (registry.Status != StaticStatus.Pending) throw new Exception("La solicitud de inscripción ya no está pendiente de aprobación");
-                    registry.Status = StaticStatus.Active;
-                    dbContext.ChangeNotify(registry);
-                    dbContext.Commit();
-                }
-                catch (Exception ex)
-                {
-                    dbContext.RollBack();
-                    throw ex;
-                }
-            }
-        }
-
-        public string TrackCustomerVisit(string deviceId, string accessCode, int employeeId, int productId, int rating, string comment, int customerId)
-        {
-            using (var dbContext = new VisitorTrackingContext(_settings.ConnectionString))
-            {
-                try
-                {
-                    Branch branch = dbContext.BranchRepository.FirstOrDefault(x => x.AccessCode == accessCode);
-                    if (branch == null) throw new Exception("No se logró obtener la información de la sucursal que envia la solicitud.");
-                    if (!branch.Active) throw new Exception("La sucursal se encuentra inactiva en el sistema. Consulte con su proveedor del servicio.");
-                    Company company = dbContext.CompanyRepository.Find(branch.CompanyId);
-                    if (company.ExpiresAt < DateTime.UtcNow.AddHours(company.UtcTimeFactor)) throw new Exception("La empresa se encuentra inhabilitada en el sistema. Consulte con su proveedor del servicio.");
-                    Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.DeviceId == deviceId && x.CompanyId == branch.CompanyId && x.CustomerId == customerId);
-                    if (registry == null) throw new Exception("El dispositivo no ha sido registrado. Por favor proceda con el registro.");
-                    int visitNumber = 0;
                     bool willApply = false;
-                    if (company.PromotionAt > 0) {
-                        visitNumber = registry.VisitCount + 1;
+                    string response = "";
+                    Customer customer;
+                    if (customerId == 0)
+                    {
+                        if (identifier == "") throw new Exception("No se indica la información del cliente para registrar la visita.");
+                        customer = dbContext.CustomerRepository.FirstOrDefault(x => x.Identifier == identifier);
+                        if (customer == null) throw new Exception("No existe ningún cliente registrado con la identificación " + identifier);
+                    }
+                    else
+                    {
+                        customer = dbContext.CustomerRepository.FirstOrDefault(x => x.Id == customerId);
+                        if (customer == null) throw new Exception("No existe ningún cliente registrado con el id " + customerId);
+                    }
+                    Registry registry = dbContext.RegistryRepository.FirstOrDefault(x => x.CompanyId == branch.CompanyId && x.CustomerId == customer.Id);
+                    if (registry == null) throw new Exception("No se encontró registro del cliente en el sistema.");
+                    if (registry.DeviceId == "") registry.DeviceId = deviceId;
+                    if (company.PromotionAt > 0)
+                    {
+                        int visitNumber = registry.VisitCount + 1;
                         if (visitNumber >= company.PromotionAt)
                         {
                             registry.VisitCount = 0;
                             willApply = true;
+                            response = company.PromotionMessage;
                         }
                         else
                         {
@@ -864,7 +828,7 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     }
                     dbContext.ChangeNotify(registry);
                     Activity activity = new Activity();
-                    activity.RegistryId = registry.Id;
+                    activity.Registry = registry;
                     activity.CompanyId = branch.CompanyId;
                     activity.BranchId = branch.Id;
                     activity.EmployeeId = employeeId;
@@ -875,7 +839,6 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                     activity.Applied = willApply;
                     dbContext.ActivityRepository.Add(activity);
                     dbContext.Commit();
-                    string response = willApply ? company.PromotionMessage : "";
                     return response;
                 }
                 catch (Exception ex)
@@ -895,19 +858,19 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
             {
                 try
                 {
-                    var list = dbContext.CustomerRepository.Join(dbContext.RegistryRepository, x => x.Id, y => y.CustomerId, (x, y) => new { x, y })
-                        .Join(dbContext.ActivityRepository, x => x.y.Id, y => y.RegistryId, (x, y) => new { x, y })
-                        .Join(dbContext.ServiceRepository, x => x.y.ServiceId, y => y.Id, (x, y) => new { x, y })
-                        .Where(x => x.y.CompanyId == companyId && x.x.y.BranchId == branchId && x.x.y.VisitDate >= datStartDate && x.x.y.VisitDate <= datEndDate)
-                        .Select(x => new { Id = x.x.y.Id, Name = x.x.x.x.Name, x.x.y.VisitDate, Service = x.y.Description, x.x.y.Comment }).ToList();
-                        
-                    foreach(var entry in list)
+                    var list = dbContext.CompanyRepository.Join(dbContext.ActivityRepository, x => x.Id, y => y.CompanyId, (x, y) => new { x, y })
+                        .Join(dbContext.RegistryRepository, x => x.y.RegistryId, y => y.Id, (x, y) => new { x, y })
+                        .Join(dbContext.CustomerRepository, x => x.y.CustomerId, y => y.Id, (x, y) => new { x, y })
+                        .Join(dbContext.ServiceRepository, x => x.x.x.y.ServiceId, y => y.Id, (x, y) => new { x, y })
+                        .Where(x => x.x.x.x.x.Id == companyId && x.y.CompanyId == companyId && x.x.x.x.y.BranchId == branchId && x.x.x.x.y.VisitDate >= datStartDate && x.x.x.x.y.VisitDate <= datEndDate)
+                        .Select(x => new { Id = x.x.x.y.Id, Name = x.x.y.Name, VisitDate = x.x.x.x.y.VisitDate, ServiceName = x.y.Description, Comment = x.x.x.x.y.Comment }).ToList();
+                    foreach (var entry in list)
                     {
-                        ActivityList item = new ActivityList(entry.Id, entry.Name, entry.VisitDate.ToString(strFormat), entry.Service, entry.Comment);
+                        ActivityList item = new ActivityList(entry.Id, entry.Name, entry.VisitDate.ToString(strFormat), entry.ServiceName, entry.Comment);
                         results.Add(item);
                     }
                     return results;
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -930,14 +893,14 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         .Where(x => x.y.CompanyId == companyId && x.y.BranchId == branchId && x.y.VisitDate >= datStartDate && x.y.VisitDate <= datEndDate)
                         .GroupBy(x => x.x.Name)
                         .Select(g => new { Name = g.Key, Count = g.Count() });
-                        
-                    foreach(var entry in list)
+
+                    foreach (var entry in list)
                     {
                         ActivityResume item = new ActivityResume(entry.Name, entry.Count);
                         results.Add(item);
                     }
                     return results;
-                    
+
                 }
                 catch (Exception ex)
                 {

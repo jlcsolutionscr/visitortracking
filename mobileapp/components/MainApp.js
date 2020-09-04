@@ -13,7 +13,7 @@ import OutdatedScreen from './outdated/OutdatedScreen'
 import Loader from './custom/Loader'
 import StartupScreen from './home/StartupScreen'
 import RewardScreen from './tracking/RewardScreen'
-import LoginNavigator from './tracking/LoginNavigator'
+import TrackingScreen from './tracking/TrackingScreen'
 
 import styles from './styles'
 
@@ -25,19 +25,19 @@ class MainApp extends Component {
     }
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.props.validateSessionState()
   }
 
-  splashScreenOnCompleted () {
+  splashScreenOnCompleted() {
     this.setState({ splashScreenDone: true })
   }
 
-  handleBackPress () {
+  handleBackPress() {
     BackHandler.exitApp()
   }
 
-  handleClosePress () {
+  handleClosePress() {
     this.props.setRewardMessage('')
     this.props.setBranch(null)
   }
@@ -45,54 +45,67 @@ class MainApp extends Component {
   render() {
     const { rewardMessage, sessionStatus, loaderVisible, branch, message, error } = this.props
     const { splashScreenDone } = this.state
-    const rootComponent = (
-      !splashScreenDone || sessionStatus === 'loading'
-        ? <View />
-        : sessionStatus === 'outdated'
-          ? <OutdatedScreen messageId={1} handleBackPress={this.handleBackPress} />
-          : branch === null
-            ? <StartupScreen />
-            : rewardMessage === ''
-              ? <LoginNavigator />
-              : <RewardScreen handleClosePress={this.handleClosePress.bind(this)} branch={branch} rewardMessage={rewardMessage} />
-    )
+    const rootComponent =
+      !splashScreenDone || sessionStatus === 'loading' ? (
+        <View />
+      ) : sessionStatus === 'outdated' ? (
+        <OutdatedScreen messageId={1} handleBackPress={this.handleBackPress} />
+      ) : branch === null ? (
+        <StartupScreen />
+      ) : rewardMessage === '' ? (
+        <TrackingScreen />
+      ) : (
+        <RewardScreen
+          handleClosePress={this.handleClosePress.bind(this)}
+          branch={branch}
+          rewardMessage={rewardMessage}
+        />
+      )
     const visibility = splashScreenDone && loaderVisible
     const modalVisible = error !== '' || message !== ''
-    const modalFooter = message !== ''
-      ? <ModalFooter>
+    const modalFooter =
+      message !== '' ? (
+        <ModalFooter>
           <ModalButton
             bordered
             textStyle={styles.modalButtonText}
-            text='OK'
-            onPress={() => {this.props.setModalMessage('')}}
+            text="OK"
+            onPress={() => {
+              this.props.setModalMessage('')
+            }}
           />
         </ModalFooter>
-      : <ModalFooter>
+      ) : (
+        <ModalFooter>
           <ModalButton
             bordered
             textStyle={styles.modalButtonText}
-            text='Recargar'
-            onPress={() => {this.props.validateSessionState()}}
+            text="Recargar"
+            onPress={() => {
+              this.props.validateSessionState()
+            }}
           />
           <ModalButton
             bordered
             textStyle={styles.modalButtonText}
-            text='Salir'
-            onPress={() => {this.handleBackPress()}}
+            text="Salir"
+            onPress={() => {
+              this.handleBackPress()
+            }}
           />
         </ModalFooter>
+      )
     return (
       <View style={styles.container}>
         <StatusBar hidden={!splashScreenDone} />
-        {!splashScreenDone && <SplashScreen onCompleted={this.splashScreenOnCompleted.bind(this)}/>}
+        {!splashScreenDone && <SplashScreen onCompleted={this.splashScreenOnCompleted.bind(this)} />}
         {rootComponent}
         <Modal
           modalAnimation={new ScaleAnimation()}
           visible={modalVisible}
           modalStyle={styles.modal}
-          modalTitle={<ModalTitle title='JLC Solutions CR' />}
-          footer={modalFooter}
-        >
+          modalTitle={<ModalTitle title="JLC Solutions CR" />}
+          footer={modalFooter}>
           <View style={styles.dialogContentView}>
             <Text>{message !== '' ? message : error}</Text>
           </View>
@@ -103,7 +116,7 @@ class MainApp extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     sessionStatus: state.session.sessionStatus,
     loaderVisible: state.ui.loaderVisible,
@@ -114,13 +127,19 @@ const mapStateToProps = (state) => {
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({
-    validateSessionState,
-    setModalMessage,
-    setRewardMessage,
-    setBranch
-  }, dispatch)
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(
+    {
+      validateSessionState,
+      setModalMessage,
+      setRewardMessage,
+      setBranch
+    },
+    dispatch
+  )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MainApp)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(MainApp)

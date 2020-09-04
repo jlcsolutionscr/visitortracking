@@ -248,7 +248,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                             int rating = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "Rating").Value.ToString());
                             string comment = message.Parameters.FirstOrDefault(x => x.Key == "Comment").Value.ToString();
                             customerId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "CustomerId").Value.ToString());
-                            string promotionMessage = service.TrackCustomerVisit(deviceId, accessCode, employeeId, serviceId, rating, comment, customerId);
+                            string identifier = message.Parameters.FirstOrDefault(x => x.Key == "Identifier").Value.ToString();
+                            string promotionMessage = service.TrackCustomerVisit(deviceId, accessCode, employeeId, serviceId, rating, comment, customerId, identifier);
                             response = JsonSerializer.Serialize(promotionMessage, new JsonSerializerOptions());
                             break;
                         default:
@@ -338,21 +339,6 @@ namespace jlcsolutionscr.com.visitortracking.webapi.controllers
                         case "UpdateService":
                             serviceEntity = JsonSerializer.Deserialize<Service>(message.Entity.ToString());
                             service.UpdateService(serviceEntity);
-                            break;
-                        case "CustomerRegistry":
-                            deviceId = message.Parameters.FirstOrDefault(x => x.Key == "DeviceId").Value.ToString();
-                            accessCode = message.Parameters.FirstOrDefault(x => x.Key == "AccessCode").Value.ToString();
-                            string name = message.Parameters.FirstOrDefault(x => x.Key == "Name").Value.ToString();
-                            string identifier = message.Parameters.FirstOrDefault(x => x.Key == "Identifier").Value.ToString();
-                            string birthday = message.Parameters.FirstOrDefault(x => x.Key == "Birthday").Value.ToString();
-                            string address = message.Parameters.FirstOrDefault(x => x.Key == "Address").Value.ToString();
-                            string mobileNumber = message.Parameters.FirstOrDefault(x => x.Key == "MobileNumber").Value.ToString();
-                            string email = message.Parameters.FirstOrDefault(x => x.Key == "Email").Value.ToString();
-                            service.CustomerRegistry(deviceId, accessCode, name, identifier, birthday, address, mobileNumber, email);
-                            break;
-                        case "RegistryApproval":
-                            int registryId = int.Parse(message.Parameters.FirstOrDefault(x => x.Key == "RegistryId").Value.ToString());
-                            service.RegistryApproval(registryId);
                             break;
                         default:
                             throw new Exception("El método solicitado no ha sido implementado: " + message.MethodName);

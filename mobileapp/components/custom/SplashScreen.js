@@ -2,11 +2,9 @@ import React, { Component } from 'react'
 import { StyleSheet, Animated, Image, Dimensions } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 
-
 const { width, height } = Dimensions.get('window')
 const rem = width / 411.42857142857144
 const remY = height / 683.4285714285714
-
 
 export default class SplashScreen extends Component {
   constructor(props) {
@@ -14,7 +12,7 @@ export default class SplashScreen extends Component {
     this._hideValue = new Animated.Value(0)
   }
 
-  async componentDidMount () {
+  async componentDidMount() {
     Animated.timing(this._hideValue, {
       toValue: 1,
       delay: 500,
@@ -33,20 +31,13 @@ export default class SplashScreen extends Component {
         extrapolate: 'clamp'
       })
     }
-    
+
     return (
       <Animated.View style={[StyleSheet.absoluteFill, opacityVisibleToClear]}>
         <LinearGradient colors={['#0792C4', '#0D496E']} style={[styles.container, StyleSheet.absoluteFill]}>
-          <Image
-            source={require("../../assets/inicio.png")}
-            style={styles.image}
-          />
-          <Image
-            source={require("../../assets/android-logo.png")}
-            style={styles.logo}
-          />
+          <Image source={require('../../assets/inicio.png')} style={styles.image} />
+          <Image source={require('../../assets/android-logo.png')} style={styles.logo} />
         </LinearGradient>
-        
       </Animated.View>
     )
   }
@@ -59,10 +50,10 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   logo: {
-    height: (50 * remY),
-    width: (50 * rem),
+    height: 50 * remY,
+    width: 50 * rem,
     position: 'absolute',
-    bottom: height * 0.10
+    bottom: height * 0.1
   },
   image: {
     width: 250,

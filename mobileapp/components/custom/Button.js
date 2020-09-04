@@ -5,7 +5,7 @@ const { width, height } = Dimensions.get('window')
 const rem = width / 411.42857142857144
 const remY = height / 683.4285714285714
 
-const Button = (props) => {
+const Button = props => {
   const containerStyles = {
     ...styles.container,
     ...props.containerStyle
@@ -47,11 +47,11 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     borderWidth: 1,
     borderRadius: 20,
-    height: (50 * remY)
+    height: 50 * remY
   },
   text: {
     fontFamily: 'TitilliumWeb-SemiBold',
-    fontSize: (18 * rem)
+    fontSize: 18 * rem
   }
 })
 

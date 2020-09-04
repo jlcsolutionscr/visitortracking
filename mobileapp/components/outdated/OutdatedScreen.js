@@ -3,23 +3,21 @@ import React from 'react'
 import { StyleSheet, View, Text, Linking } from 'react-native'
 import Button from '../custom/Button'
 
-const OutdatedScreen = (props) => {
+const OutdatedScreen = props => {
   return (
     <View style={styles.content}>
-      <Text style={styles.text}>
-        Existe una actualización pendiente. Ingrese al Google Play Store para continuar
-      </Text>
+      <Text style={styles.text}>Existe una actualización pendiente. Ingrese al Google Play Store para continuar</Text>
       <Button
         containerStyle={styles.buttonContainer}
         style={styles.button}
         titleUpperCase
-        title='Cerrar App'
+        title="Cerrar App"
         onPress={() => props.handleBackPress()}
       />
       <Button
         containerStyle={styles.buttonContainer}
         titleUpperCase
-        title='Ingresar a Play Store'
+        title="Ingresar a Play Store"
         onPress={() => Linking.openURL('market://details?id=com.jlcvisitortracking')}
       />
     </View>
@@ -28,7 +26,7 @@ const OutdatedScreen = (props) => {
 
 const styles = StyleSheet.create({
   content: {
-    flex: 1, 
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#08415C'

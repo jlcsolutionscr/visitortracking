@@ -5,6 +5,8 @@ export const INITIAL_STATE = {
     splashScreenDone: false,
     scannerActive: false,
     message: '',
+    startupError: '',
+    trackingError: '',
     error: ''
   },
   session: {

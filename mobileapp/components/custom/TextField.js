@@ -10,27 +10,26 @@ import { formatCurrency, roundNumber } from '../../utils/formatHelper'
 class TextField extends Component {
   constructor(props) {
     super(props)
-    this.state = {focus: false}
+    this.state = { focus: false }
   }
 
-  render () {
-    const containerStyle = {...styles.container, ...this.props.containerStyle}
-    const displayText = this.props.value.toString() != ''
-      ? this.props.currencyFormat
-        ? this.state.focus
-          ? this.props.value.toString()
-          : formatCurrency(roundNumber(this.props.value, 2), 2)
-        : this.props.value.toString()
-      : ''
+  render() {
+    const containerStyle = { ...styles.container, ...this.props.containerStyle }
+    const displayText =
+      this.props.value.toString() != ''
+        ? this.props.currencyFormat
+          ? this.state.focus
+            ? this.props.value.toString()
+            : formatCurrency(roundNumber(this.props.value, 2), 2)
+          : this.props.value.toString()
+        : ''
     return (
       <View style={containerStyle}>
-        <Text style={styles.label}>
-          {this.props.label}
-        </Text>
+        <Text style={styles.label}>{this.props.label}</Text>
         <TextInput
           editable={this.props.editable}
-          onFocus={() => this.setState({focus: true})}
-          onBlur={() => this.setState({focus: false})}
+          onFocus={() => this.setState({ focus: true })}
+          onBlur={() => this.setState({ focus: false })}
           style={styles.input}
           placeholder={this.props.placeholder}
           maxLength={this.props.maxLength}
@@ -55,15 +54,15 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'TitilliumWeb-Light',
-    fontSize: (18 * rem)
+    fontSize: 18 * rem
   },
   input: {
     fontFamily: 'TitilliumWeb-Light',
-    fontSize: (18 * rem),
+    fontSize: 18 * rem,
     borderColor: '#5DBCD2',
     borderBottomWidth: 1,
     padding: 10,
-    height: (45 * remY)
+    height: 45 * remY
   }
 })
 

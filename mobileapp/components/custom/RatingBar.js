@@ -4,31 +4,26 @@ import { StyleSheet, Dimensions, View, Text, Image, TouchableOpacity } from 'rea
 const { width } = Dimensions.get('window')
 const rem = width / 411.42857142857144
 
-const RatingBar = (props) => {
-  let React_Native_Rating_Bar = [];
+const RatingBar = props => {
+  let React_Native_Rating_Bar = []
   for (var i = 1; i <= props.maxRating; i++) {
     React_Native_Rating_Bar.push(
-      <TouchableOpacity
-        activeOpacity={0.7}
-        key={i}
-        onPress={props.onPress.bind(this, i)}>
+      <TouchableOpacity activeOpacity={0.7} key={i} onPress={props.onPress.bind(this, i)}>
         <Image
           style={styles.StarImage}
           source={
-            i <= props.rating
-              ? require('../../assets/star-filled.png')
-              : require('../../assets/star-unfilled.png')
+            i <= props.rating ? require('../../assets/star-filled.png') : require('../../assets/star-unfilled.png')
           }
         />
       </TouchableOpacity>
-    );
+    )
   }
   return (
     <View style={styles.container}>
       <Text style={styles.labelStyle}>{props.label}</Text>
       <View style={styles.childView}>{React_Native_Rating_Bar}</View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -49,7 +44,7 @@ const styles = StyleSheet.create({
   },
   labelStyle: {
     fontFamily: 'TitilliumWeb-Regular',
-    fontSize: (20 * rem),
+    fontSize: 20 * rem,
     textAlign: 'center'
   }
 })

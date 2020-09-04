@@ -9,17 +9,17 @@ import {
   SET_SERVICE_LIST,
   SET_CUSTOMER_LIST,
   SET_REWARD_MESSAGE,
+  SET_STARTUP_ERROR,
+  SET_TRACKING_ERROR,
   SET_ERROR
 } from './types'
 
 import {
-  getLatestAppVersion,
   userLogin,
   getBranchInfo,
   GetActiveEmployeeList,
   GetActiveServiceList,
   getRegisteredCustomerList,
-  customerRegistration,
   visitorActivityTracking
 } from '../../utils/domainHelper'
 
@@ -27,7 +27,7 @@ import { startLoader, stopLoader, setScannerActive, setModalMessage, setModalErr
 
 import DeviceInfo from 'react-native-device-info'
 
-export const setSessionToken = (token) => {
+export const setSessionToken = token => {
   return {
     type: SET_SESSION_TOKEN,
     payload: { token }
@@ -41,56 +41,70 @@ export const setSessionStatus = (deviceId, status) => {
   }
 }
 
-export const setBranch = (entity) => {
+export const setBranch = entity => {
   return {
     type: SET_BRANCH,
     payload: { entity }
   }
 }
 
-export const setEmployeeList = (list) => {
+export const setEmployeeList = list => {
   return {
     type: SET_EMPLOYEE_LIST,
     payload: { list }
   }
 }
 
-export const setServiceList = (list) => {
+export const setServiceList = list => {
   return {
     type: SET_SERVICE_LIST,
     payload: { list }
   }
 }
 
-export const setCustomerList = (list) => {
+export const setCustomerList = list => {
   return {
     type: SET_CUSTOMER_LIST,
     payload: { list }
   }
 }
 
-export const setRewardMessage = (message) => {
+export const setRewardMessage = message => {
   return {
     type: SET_REWARD_MESSAGE,
     payload: { message }
   }
 }
 
-export const setError = (error) => {
+export const setStartupError = error => {
+  return {
+    type: SET_STARTUP_ERROR,
+    payload: { error }
+  }
+}
+
+export const setTrackingError = error => {
+  return {
+    type: SET_TRACKING_ERROR,
+    payload: { error }
+  }
+}
+
+export const setError = error => {
   return {
     type: SET_ERROR,
     payload: { error }
   }
 }
 
-export function validateSessionState () {
+export function validateSessionState() {
   return async (dispatch, getState) => {
     const serviceURL = Config.SERVER_URL
     const { token } = getState().session
     dispatch(startLoader())
     dispatch(setModalError(''))
     try {
-      const metadata = await getAppstoreAppMetadata("com.jlcvisitortracking")
+      const metadata = await getAppstoreAppMetadata('com.jlcvisitortracking')
       const deviceId = await DeviceInfo.getAndroidId()
       const currentVersion = await DeviceInfo.getVersion()
       if (metadata.version !== currentVersion) {
@@ -110,17 +124,17 @@ export function validateSessionState () {
   }
 }
 
-export function validateCodeInfo (accessCode) {
+export function validateCodeInfo(accessCode) {
   return async (dispatch, getState) => {
     const serviceURL = Config.SERVER_URL
     const { deviceId, token } = getState().session
     dispatch(startLoader())
     dispatch(setScannerActive(false))
-    dispatch(setError(''))
+    dispatch(setStartupError(''))
     try {
       const branch = await getBranchInfo(serviceURL, accessCode, token)
       if (!branch) {
-        dispatch(setError('No se encontró información asociada.'))
+        dispatch(setStartupError('No se encontró una sucursal asociada con el código QR.'))
       } else {
         dispatch(setBranch(branch))
         const employeeList = await GetActiveEmployeeList(serviceURL, branch.CompanyId, token)
@@ -130,40 +144,34 @@ export function validateCodeInfo (accessCode) {
         const customerList = await getRegisteredCustomerList(serviceURL, deviceId, accessCode, token)
         dispatch(setCustomerList(customerList))
       }
+      dispatch(setTrackingError(''))
       dispatch(stopLoader())
     } catch (error) {
       dispatch(stopLoader())
-      dispatch(setError(error))
+      dispatch(setStartupError(error))
     }
   }
 }
 
-export function registerCustomer (customer) {
+export function trackVisitorActivity(employeeId, serviceId, rating, comment, customerId, identifier) {
   return async (dispatch, getState) => {
     const serviceURL = Config.SERVER_URL
     const { deviceId, branch, token } = getState().session
     dispatch(startLoader())
-    dispatch(setError(''))
+    dispatch(setTrackingError(''))
     try {
-      await customerRegistration(serviceURL, deviceId, branch.AccessCode, customer, token)
-      dispatch(setBranch(null))
-      dispatch(setModalMessage('Su solicitud de registro ha sido enviada. Una vez aprobada podrás iniciar el registro de sus visitas'))
-      dispatch(stopLoader())
-    } catch (error) {
-      dispatch(stopLoader())
-      dispatch(setError(error))
-    }
-  }
-}
-
-export function trackVisitorActivity (employeeId, serviceId, rating, comment, customerId) {
-  return async (dispatch, getState) => {
-    const serviceURL = Config.SERVER_URL
-    const { deviceId, branch, token } = getState().session
-    dispatch(startLoader())
-    dispatch(setError(''))
-    try {
-      const response = await visitorActivityTracking(serviceURL, deviceId, branch.AccessCode, employeeId, serviceId, rating, comment, customerId, token)
+      const response = await visitorActivityTracking(
+        serviceURL,
+        deviceId,
+        branch.AccessCode,
+        employeeId,
+        serviceId,
+        rating,
+        comment,
+        customerId,
+        identifier,
+        token
+      )
       if (response === '') {
         dispatch(setBranch(null))
         dispatch(setModalMessage('Tu visita ha sido registrada satisfactoriamente'))
@@ -173,7 +181,7 @@ export function trackVisitorActivity (employeeId, serviceId, rating, comment, cu
       dispatch(stopLoader())
     } catch (error) {
       dispatch(stopLoader())
-      dispatch(setError(error))
+      dispatch(setTrackingError(error))
     }
   }
 }

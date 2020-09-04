@@ -1,10 +1,4 @@
-import {
-  START_LOADER,
-  STOP_LOADER,
-  SET_SCANNER_ACTIVE,
-  SET_MODAL_MESSAGE,
-  SET_MODAL_ERROR
-} from './types'
+import { START_LOADER, STOP_LOADER, SET_SCANNER_ACTIVE, SET_MODAL_MESSAGE, SET_MODAL_ERROR } from './types'
 
 const configReducer = (state = {}, { type, payload }) => {
   switch (type) {
