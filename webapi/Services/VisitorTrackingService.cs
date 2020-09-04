@@ -863,7 +863,8 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                         .Join(dbContext.CustomerRepository, x => x.y.CustomerId, y => y.Id, (x, y) => new { x, y })
                         .Join(dbContext.ServiceRepository, x => x.x.x.y.ServiceId, y => y.Id, (x, y) => new { x, y })
                         .Where(x => x.x.x.x.x.Id == companyId && x.y.CompanyId == companyId && x.x.x.x.y.BranchId == branchId && x.x.x.x.y.VisitDate >= datStartDate && x.x.x.x.y.VisitDate <= datEndDate)
-                        .Select(x => new { Id = x.x.x.y.Id, Name = x.x.y.Name, VisitDate = x.x.x.x.y.VisitDate, ServiceName = x.y.Description, Comment = x.x.x.x.y.Comment }).ToList();
+                        .Select(x => new { Id = x.x.x.y.Id, Name = x.x.y.Name, VisitDate = x.x.x.x.y.VisitDate, ServiceName = x.y.Description, Comment = x.x.x.x.y.Comment })
+                        .OrderBy(x => x.VisitDate).ToList();
                     foreach (var entry in list)
                     {
                         ActivityList item = new ActivityList(entry.Id, entry.Name, entry.VisitDate.ToString(strFormat), entry.ServiceName, entry.Comment);
