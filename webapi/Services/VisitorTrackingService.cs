@@ -92,13 +92,9 @@ namespace jlcsolutionscr.com.visitortracking.webapi.services
                 string strGuid = Guid.NewGuid().ToString();
                 try
                 {
-                    DateTime detMaxDate = DateTime.UtcNow;
-                    var list = dbContext.AuthorizationEntryRepository.Where(x => x.EmitedAt < detMaxDate).ToList();
-                    foreach (AuthorizationEntry entry in list)
-                    {
-                        dbContext.RemoveNotify(entry);
-                        dbContext.Commit();
-                    }
+                    DateTime detMaxDate = DateTime.UtcNow.AddHours(-12);
+                    dbContext.AuthorizationEntryRepository.RemoveRange(dbContext.AuthorizationEntryRepository.Where(x => x.EmitedAt < detMaxDate));
+                    dbContext.Commit();
                 }
                 catch (Exception ex)
                 {
